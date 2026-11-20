@@ -1,17 +1,27 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { Link, Stack } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
-import { Text, View } from '@/components/Themed';
+import { theme } from "@/constants/theme";
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+      <Stack.Screen options={{ title: "Page not found" }} />
+
       <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
+        <View style={styles.iconContainer}>
+          <Text style={styles.icon}>✦</Text>
+        </View>
+
+        <Text style={styles.title}>Lost your way?</Text>
+
+        <Text style={styles.description}>
+          We couldn't find the page you're looking for. Let's get you back to
+          your notes.
+        </Text>
 
         <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+          Back to home
         </Link>
       </View>
     </>
@@ -21,20 +31,42 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing.xl,
+    backgroundColor: theme.colors.background,
+  },
+  iconContainer: {
+    width: 68,
+    height: 68,
+    borderRadius: theme.radius.xl,
+    backgroundColor: "rgba(167, 139, 250, 0.13)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing.xl,
+  },
+  icon: {
+    color: theme.colors.primary,
+    fontSize: 34,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.sizes.xxl,
+    fontWeight: "700",
+    marginBottom: theme.spacing.sm,
+  },
+  description: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.md,
+    lineHeight: 24,
+    textAlign: "center",
+    maxWidth: 300,
+    marginBottom: theme.spacing.xl,
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
+    color: theme.colors.primaryLight,
+    fontSize: theme.typography.sizes.md,
+    fontWeight: "700",
+    padding: theme.spacing.md,
   },
 });

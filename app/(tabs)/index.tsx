@@ -39,7 +39,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>YOUR PERSONAL SPACE</Text>
-            <Text style={styles.title}>Good morning 👋</Text>
+            <Text style={styles.title}>Hello!</Text>
             <Text style={styles.subtitle}>What's on your mind today?</Text>
           </View>
 
