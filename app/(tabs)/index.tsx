@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -11,6 +12,9 @@ import {
 } from "react-native";
 
 import { theme } from "@/constants/theme";
+import { getNotes } from "@/services/notes";
+import type { Note, NoteCategory } from "@/types/note";
+import { searchNotes, sortNotes } from "@/utils/noteHelpers";
 
 const categories = [
   { label: "All notes", value: "all" },
@@ -19,9 +23,64 @@ const categories = [
   { label: "Personal", value: "personal" },
 ];
 
+function getCategoryColor(category: NoteCategory) {
+  switch (category) {
+    case "Work":
+      return theme.colors.categories.work;
+    case "Study":
+      return theme.colors.categories.study;
+    case "Personal":
+      return theme.colors.categories.personal;
+  }
+}
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-ZA", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function HomeScreen() {
+  const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const loadNotes = async () => {
+        try {
+          const savedNotes = await getNotes();
+
+          if (isActive) {
+            setNotes(savedNotes);
+          }
+        } catch {
+          if (isActive) {
+            Alert.alert(
+              "Unable to load notes",
+              "Something went wrong while loading your notes.",
+            );
+          }
+        } finally {
+          if (isActive) {
+            setIsLoading(false);
+          }
+        }
+      };
+
+      setIsLoading(true);
+      loadNotes();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   const handleAddNote = () => {
     router.push("/create");
@@ -29,6 +88,50 @@ export default function HomeScreen() {
 
   const handleSettings = () => {
     Alert.alert("Settings", "Your settings screen will be added later.");
+  };
+
+  const filteredNotes = sortNotes(
+    searchNotes(notes, searchQuery).filter((note) => {
+      return (
+        selectedCategory === "all" ||
+        note.category.toLowerCase() === selectedCategory
+      );
+    }),
+    "newest",
+  );
+
+  const renderNoteCard = (note: Note) => {
+    const categoryColor = getCategoryColor(note.category);
+
+    return (
+      <View key={note.id} style={styles.noteCard}>
+        <View style={styles.noteCardHeader}>
+          <View
+            style={[
+              styles.noteCategory,
+              { backgroundColor: `${categoryColor}20` },
+            ]}
+          >
+            <View
+              style={[styles.categoryDot, { backgroundColor: categoryColor }]}
+            />
+            <Text style={[styles.noteCategoryText, { color: categoryColor }]}>
+              {note.category}
+            </Text>
+          </View>
+
+          <Text style={styles.noteDate}>{formatDate(note.createdAt)}</Text>
+        </View>
+
+        <Text style={styles.noteTitle}>
+          {note.title.trim() || "Untitled note"}
+        </Text>
+
+        <Text style={styles.noteContent} numberOfLines={3}>
+          {note.content}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -136,36 +239,71 @@ export default function HomeScreen() {
                 <Text style={styles.notesSubtitle}>Your ideas live here</Text>
               </View>
 
-              <Text style={styles.noteCount}>0 NOTES</Text>
+              <Text style={styles.noteCount}>
+                {notes.length} {notes.length === 1 ? "NOTE" : "NOTES"}
+              </Text>
             </View>
 
-            {/* Empty state */}
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconContainer}>
-                <Text style={styles.emptyIcon}>{"\u2726"}</Text>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text style={styles.loadingText}>Loading your notes...</Text>
               </View>
+            ) : filteredNotes.length > 0 ? (
+              <View style={styles.notesList}>
+                {filteredNotes.map(renderNoteCard)}
+              </View>
+            ) : notes.length === 0 ? (
+              /* Empty state */
+              <View style={styles.emptyState}>
+                <View style={styles.emptyIconContainer}>
+                  <Text style={styles.emptyIcon}>{"\u2726"}</Text>
+                </View>
 
-              <Text style={styles.emptyTitle}>A little space for ideas</Text>
+                <Text style={styles.emptyTitle}>A little space for ideas</Text>
 
-              <Text style={styles.emptyDescription}>
-                You haven't created any notes yet. Start capturing your
-                thoughts, plans and ideas in one place.
-              </Text>
+                <Text style={styles.emptyDescription}>
+                  You haven't created any notes yet. Start capturing your
+                  thoughts, plans and ideas in one place.
+                </Text>
 
+                <Pressable
+                  onPress={handleAddNote}
+                  style={({ pressed }) => [
+                    styles.createButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.createButtonIcon}>{"\uFF0B"}</Text>
+                  <Text style={styles.createButtonText}>
+                    Create your first note
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={styles.noResults}>
+                <Text style={styles.noResultsTitle}>No matching notes</Text>
+                <Text style={styles.noResultsDescription}>
+                  Try another search term or select a different category.
+                </Text>
+              </View>
+            )}
+
+            {!isLoading && notes.length > 0 && (
               <Pressable
                 onPress={handleAddNote}
                 style={({ pressed }) => [
-                  styles.createButton,
+                  styles.addAnotherButton,
                   pressed && styles.buttonPressed,
                 ]}
                 accessibilityRole="button"
               >
-                <Text style={styles.createButtonIcon}>{"\uFF0B"}</Text>
-                <Text style={styles.createButtonText}>
-                  Create your first note
+                <Text style={styles.addAnotherButtonText}>
+                  {"\uFF0B"} Add another note
                 </Text>
               </Pressable>
-            </View>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -328,6 +466,65 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
   },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    gap: 14,
+  },
+  loadingText: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+  },
+  notesList: {
+    gap: 14,
+  },
+  noteCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 20,
+  },
+  noteCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 12,
+  },
+  noteCategory: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: theme.radius.full,
+  },
+  categoryDot: {
+    width: 7,
+    height: 7,
+    borderRadius: theme.radius.full,
+  },
+  noteCategoryText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  noteDate: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+  },
+  noteTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 17,
+    fontWeight: "700",
+    marginBottom: 9,
+  },
+  noteContent: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+  },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -385,6 +582,41 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: theme.colors.textOnPrimary,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  noResults: {
+    alignItems: "center",
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 32,
+  },
+  noResultsTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 17,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  noResultsDescription: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  addAnotherButton: {
+    minHeight: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginTop: 20,
+  },
+  addAnotherButtonText: {
+    color: theme.colors.primaryLight,
     fontSize: 14,
     fontWeight: "700",
   },
