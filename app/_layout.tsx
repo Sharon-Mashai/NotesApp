@@ -20,12 +20,14 @@ export default function RootLayout() {
     <ThemeProvider value={DarkTheme}>
       <Stack
         screenOptions={{
+          headerShown: false,
           contentStyle: {
             backgroundColor: "#111318",
           },
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
   );
