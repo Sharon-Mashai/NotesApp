@@ -1,42 +1,21 @@
-import { SymbolView } from "expo-symbols";
-import { Tabs } from "expo-router";
 
-import { theme } from "@/constants/theme";
+import { DarkTheme, Slot, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "react-native-reanimated";
 
-export default function TabLayout() {
+export { ErrorBoundary } from "expo-router";
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textMuted,
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Notes",
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: "note.text",
-                android: "description",
-                web: "description",
-              }}
-              tintColor={color}
-              size={23}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+    <ThemeProvider value={DarkTheme}>
+      <Slot />
+    </ThemeProvider>
   );
 }
