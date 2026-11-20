@@ -12,6 +12,8 @@ import {
   View,
 } from "react-native";
 import { Link, router } from "expo-router";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { theme } from "@/constants/theme";
@@ -25,6 +27,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async () => {
     const cleanUsername = username.trim();
@@ -140,26 +143,57 @@ export default function RegisterScreen() {
                   autoCapitalize="none"
                   editable={!isSubmitting}
                 />
-                <Pressable onPress={() => setShowPassword(!showPassword)}>
-                  <Text style={styles.showPassword}>
-                    {showPassword ? "Hide" : "Show"}
-                  </Text>
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showPassword ? "Hide password" : "Show password"
+                  }
+                  disabled={isSubmitting}
+                >
+                  <HugeiconsIcon
+                    icon={showPassword ? ViewOffIcon : ViewIcon}
+                    size={22}
+                    color={theme.colors.textSecondary}
+                    strokeWidth={1.8}
+                  />
                 </Pressable>
               </View>
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Confirm password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your password again"
-                placeholderTextColor={theme.colors.textMuted}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                editable={!isSubmitting}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Enter your password again"
+                  placeholderTextColor={theme.colors.textMuted}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  editable={!isSubmitting}
+                />
+                <Pressable
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={styles.eyeButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showConfirmPassword
+                      ? "Hide confirm password"
+                      : "Show confirm password"
+                  }
+                  disabled={isSubmitting}
+                >
+                  <HugeiconsIcon
+                    icon={showConfirmPassword ? ViewOffIcon : ViewIcon}
+                    size={22}
+                    color={theme.colors.textSecondary}
+                    strokeWidth={1.8}
+                  />
+                </Pressable>
+              </View>
             </View>
 
             <Pressable
@@ -274,11 +308,10 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontSize: 15,
   },
-  showPassword: {
-    color: theme.colors.primary,
-    fontSize: 13,
-    fontWeight: "600",
-    padding: 6,
+  eyeButton: {
+    padding: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   registerButton: {
     height: 55,
