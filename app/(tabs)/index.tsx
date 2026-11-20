@@ -3,6 +3,8 @@ import { router, useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
+  Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +14,7 @@ import {
 } from "react-native";
 
 import { theme } from "@/constants/theme";
-import { getNotes } from "@/services/notes";
+import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
 import { searchNotes, sortNotes } from "@/utils/noteHelpers";
 
@@ -47,6 +49,8 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -90,6 +94,49 @@ export default function HomeScreen() {
     Alert.alert("Settings", "Your settings screen will be added later.");
   };
 
+  const handleDeleteRequest = (note: Note) => {
+    setNoteToDelete(note);
+  };
+
+  const handleCancelDelete = () => {
+    if (!isDeleting) {
+      setNoteToDelete(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!noteToDelete || isDeleting) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const wasDeleted = await deleteNote(noteToDelete.id);
+
+      if (!wasDeleted) {
+        Alert.alert(
+          "Unable to delete note",
+          "This note could not be found. Please refresh your notes.",
+        );
+        return;
+      }
+
+      setNotes((currentNotes) =>
+        currentNotes.filter((note) => note.id !== noteToDelete.id),
+      );
+
+      setNoteToDelete(null);
+    } catch {
+      Alert.alert(
+        "Unable to delete note",
+        "Something went wrong while deleting your note. Please try again.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const filteredNotes = sortNotes(
     searchNotes(notes, searchQuery).filter((note) => {
       return (
@@ -130,6 +177,20 @@ export default function HomeScreen() {
         <Text style={styles.noteContent} numberOfLines={3}>
           {note.content}
         </Text>
+
+        <View style={styles.noteActions}>
+          <Pressable
+            onPress={() => handleDeleteRequest(note)}
+            style={({ pressed }) => [
+              styles.deleteButton,
+              pressed && styles.buttonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Delete ${note.title.trim() || "untitled note"}`}
+          >
+            <Text style={styles.deleteButtonText}>Delete note</Text>
+          </Pressable>
+        </View>
       </View>
     );
   };
@@ -256,9 +317,12 @@ export default function HomeScreen() {
             ) : notes.length === 0 ? (
               /* Empty state */
               <View style={styles.emptyState}>
-                <View style={styles.emptyIconContainer}>
-                  <Text style={styles.emptyIcon}>{"\u2726"}</Text>
-                </View>
+                <Image
+                  source={require("../../assets/images/empty-state.png")}
+                  style={styles.emptyIllustration}
+                  resizeMode="contain"
+                  accessibilityLabel="Empty notes illustration"
+                />
 
                 <Text style={styles.emptyTitle}>A little space for ideas</Text>
 
@@ -307,6 +371,66 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Delete confirmation dialog */}
+      <Modal
+        visible={noteToDelete !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelDelete}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmationCard}>
+            <View style={styles.confirmationIcon}>
+              <Text style={styles.confirmationIconText}>{"\u26A0"}</Text>
+            </View>
+
+            <Text style={styles.confirmationTitle}>Delete this note?</Text>
+
+            <Text style={styles.confirmationDescription}>
+              Are you sure you want to delete{" "}
+              <Text style={styles.confirmationNoteTitle}>
+                {noteToDelete?.title.trim() || "Untitled note"}
+              </Text>
+              ? This action cannot be undone.
+            </Text>
+
+            <View style={styles.confirmationActions}>
+              <Pressable
+                onPress={handleCancelDelete}
+                disabled={isDeleting}
+                style={({ pressed }) => [
+                  styles.cancelDeleteButton,
+                  pressed && styles.buttonPressed,
+                  isDeleting && styles.buttonDisabled,
+                ]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.cancelDeleteButtonText}>Keep note</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleConfirmDelete}
+                disabled={isDeleting}
+                style={({ pressed }) => [
+                  styles.confirmDeleteButton,
+                  pressed && styles.buttonPressed,
+                  isDeleting && styles.buttonDisabled,
+                ]}
+                accessibilityRole="button"
+              >
+                {isDeleting ? (
+                  <ActivityIndicator color={theme.colors.white} />
+                ) : (
+                  <Text style={styles.confirmDeleteButtonText}>
+                    Delete note
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -525,6 +649,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 22,
   },
+  noteActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.divider,
+  },
+  deleteButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+    borderRadius: theme.radius.md,
+    backgroundColor: `${theme.colors.status.error}18`,
+  },
+  deleteButtonText: {
+    color: theme.colors.status.error,
+    fontSize: 13,
+    fontWeight: "600",
+  },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -534,21 +677,14 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     borderStyle: "dashed",
     paddingHorizontal: 24,
-    paddingVertical: 48,
+    paddingVertical: 36,
     marginTop: 8,
   },
-  emptyIconContainer: {
-    width: 76,
-    height: 76,
-    borderRadius: theme.radius.xl,
-    backgroundColor: "rgba(167, 139, 250, 0.13)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 26,
-  },
-  emptyIcon: {
-    color: theme.colors.primary,
-    fontSize: 36,
+  emptyIllustration: {
+    width: 280,
+    height: 190,
+    maxWidth: "100%",
+    marginBottom: 20,
   },
   emptyTitle: {
     color: theme.colors.textPrimary,
@@ -620,7 +756,92 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: theme.colors.overlay,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  confirmationCard: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 24,
+    alignItems: "center",
+  },
+  confirmationIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: theme.radius.full,
+    backgroundColor: `${theme.colors.status.error}20`,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
+  },
+  confirmationIconText: {
+    color: theme.colors.status.error,
+    fontSize: 26,
+    fontWeight: "700",
+  },
+  confirmationTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  confirmationDescription: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  confirmationNoteTitle: {
+    color: theme.colors.textPrimary,
+    fontWeight: "700",
+  },
+  confirmationActions: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 12,
+  },
+  cancelDeleteButton: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  cancelDeleteButtonText: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  confirmDeleteButton: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.status.error,
+    borderRadius: theme.radius.md,
+  },
+  confirmDeleteButtonText: {
+    color: theme.colors.white,
+    fontSize: 14,
+    fontWeight: "700",
+  },
   buttonPressed: {
     opacity: 0.8,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });
