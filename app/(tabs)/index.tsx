@@ -1,3 +1,4 @@
+
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -90,6 +91,13 @@ export default function HomeScreen() {
     router.push("/create");
   };
 
+  const handleEditNote = (note: Note) => {
+    router.push({
+      pathname: "/create",
+      params: { id: note.id },
+    });
+  };
+
   const handleSettings = () => {
     Alert.alert("Settings", "Your settings screen will be added later.");
   };
@@ -178,7 +186,20 @@ export default function HomeScreen() {
           {note.content}
         </Text>
 
+        {/* Edit and Delete actions */}
         <View style={styles.noteActions}>
+          <Pressable
+            onPress={() => handleEditNote(note)}
+            style={({ pressed }) => [
+              styles.editButton,
+              pressed && styles.buttonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Edit ${note.title.trim() || "untitled note"}`}
+          >
+            <Text style={styles.editButtonText}>Edit note</Text>
+          </Pressable>
+
           <Pressable
             onPress={() => handleDeleteRequest(note)}
             style={({ pressed }) => [
@@ -652,10 +673,23 @@ const styles = StyleSheet.create({
   noteActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 10,
     marginTop: 18,
     paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: theme.colors.divider,
+  },
+  editButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+    borderRadius: theme.radius.md,
+    backgroundColor: `${theme.colors.primary}20`,
+  },
+  editButtonText: {
+    color: theme.colors.primaryLight,
+    fontSize: 13,
+    fontWeight: "600",
   },
   deleteButton: {
     paddingHorizontal: 15,

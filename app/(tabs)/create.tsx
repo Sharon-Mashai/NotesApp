@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,20 +11,76 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 import { theme } from "@/constants/theme";
-import { createNote } from "@/services/notes";
+import { createNote, getNotes, updateNote } from "@/services/notes";
 import type { NoteCategory } from "@/types/note";
 
 const categories: NoteCategory[] = ["Work", "Study", "Personal"];
 
 export default function CreateNoteScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const noteId = typeof id === "string" ? id : undefined;
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<NoteCategory>("Personal");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingNote, setIsLoadingNote] = useState(Boolean(noteId));
+
+  // Load an existing note when an ID is provided.
+  useEffect(() => {
+    let isActive = true;
+
+    const loadNote = async () => {
+      if (!noteId) {
+        setIsLoadingNote(false);
+        return;
+      }
+
+      try {
+        const savedNotes = await getNotes();
+        const existingNote = savedNotes.find((note) => note.id === noteId);
+
+        if (!existingNote) {
+          if (isActive) {
+            Alert.alert(
+              "Note not found",
+              "This note may have been deleted. Please select another note.",
+              [{ text: "OK", onPress: () => router.back() }],
+            );
+          }
+          return;
+        }
+
+        if (isActive) {
+          setTitle(existingNote.title);
+          setContent(existingNote.content);
+          setSelectedCategory(existingNote.category);
+        }
+      } catch {
+        if (isActive) {
+          Alert.alert(
+            "Unable to load note",
+            "Something went wrong while loading this note. Please try again.",
+            [{ text: "OK", onPress: () => router.back() }],
+          );
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingNote(false);
+        }
+      }
+    };
+
+    loadNote();
+
+    return () => {
+      isActive = false;
+    };
+  }, [noteId]);
 
   const handleSave = async () => {
     if (!content.trim()) {
@@ -35,17 +91,33 @@ export default function CreateNoteScreen() {
     try {
       setIsSaving(true);
 
-      await createNote({
-        title: title.trim(),
-        content: content.trim(),
-        category: selectedCategory,
-      });
+      if (noteId) {
+        const updatedNote = await updateNote(noteId, {
+          title: title.trim(),
+          content: content.trim(),
+          category: selectedCategory,
+        });
+
+        if (!updatedNote) {
+          Alert.alert(
+            "Unable to update note",
+            "This note could not be found. It may have been deleted.",
+          );
+          return;
+        }
+      } else {
+        await createNote({
+          title: title.trim(),
+          content: content.trim(),
+          category: selectedCategory,
+        });
+      }
 
       router.back();
     } catch {
       Alert.alert(
-        "Unable to save note",
-        "Something went wrong while saving your note. Please try again.",
+        noteId ? "Unable to update note" : "Unable to save note",
+        "Something went wrong. Please try again.",
       );
     } finally {
       setIsSaving(false);
@@ -55,6 +127,15 @@ export default function CreateNoteScreen() {
   const handleCancel = () => {
     router.back();
   };
+
+  if (isLoadingNote) {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={styles.loadingText}>Loading your note...</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -69,11 +150,17 @@ export default function CreateNoteScreen() {
         <View style={styles.contentWrapper}>
           {/* Header */}
           <View style={styles.header}>
-            <View>
+            <View style={styles.headerText}>
               <Text style={styles.eyebrow}>YOUR PERSONAL SPACE</Text>
-              <Text style={styles.heading}>Create a note</Text>
+
+              <Text style={styles.heading}>
+                {noteId ? "Edit your note" : "Create a note"}
+              </Text>
+
               <Text style={styles.subtitle}>
-                Capture a thought, idea or something important.
+                {noteId
+                  ? "Make changes to your saved thoughts and ideas."
+                  : "Capture a thought, idea or something important."}
               </Text>
             </View>
 
@@ -89,6 +176,7 @@ export default function CreateNoteScreen() {
           {/* Title */}
           <View style={styles.field}>
             <Text style={styles.label}>Title</Text>
+
             <TextInput
               style={styles.titleInput}
               placeholder="Give your note a title..."
@@ -98,12 +186,14 @@ export default function CreateNoteScreen() {
               maxLength={100}
               returnKeyType="next"
             />
+
             <Text style={styles.helperText}>Optional</Text>
           </View>
 
           {/* Content */}
           <View style={styles.field}>
             <Text style={styles.label}>What's on your mind?</Text>
+
             <TextInput
               style={styles.contentInput}
               placeholder="Start writing your thoughts here..."
@@ -114,6 +204,7 @@ export default function CreateNoteScreen() {
               textAlignVertical="top"
               maxLength={10000}
             />
+
             <Text style={styles.characterCount}>
               {content.length}/10,000 characters
             </Text>
@@ -122,6 +213,7 @@ export default function CreateNoteScreen() {
           {/* Category */}
           <View style={styles.field}>
             <Text style={styles.label}>Choose a category</Text>
+
             <View style={styles.categoryList}>
               {categories.map((category) => {
                 const isSelected = selectedCategory === category;
@@ -151,7 +243,7 @@ export default function CreateNoteScreen() {
             </View>
           </View>
 
-          {/* Save */}
+          {/* Save or update */}
           <Pressable
             onPress={handleSave}
             disabled={isSaving}
@@ -165,7 +257,9 @@ export default function CreateNoteScreen() {
             {isSaving ? (
               <ActivityIndicator color={theme.colors.textOnPrimary} />
             ) : (
-              <Text style={styles.saveButtonText}>Save note</Text>
+              <Text style={styles.saveButtonText}>
+                {noteId ? "Update note" : "Save note"}
+              </Text>
             )}
           </Pressable>
         </View>
@@ -178,6 +272,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  loadingScreen: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.background,
+    gap: 14,
+  },
+  loadingText: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
   },
   scrollContent: {
     flexGrow: 1,
@@ -196,6 +301,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 36,
     gap: 16,
+  },
+  headerText: {
+    flex: 1,
   },
   eyebrow: {
     color: theme.colors.primary,
