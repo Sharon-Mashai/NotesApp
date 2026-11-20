@@ -1,4 +1,3 @@
-
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -17,7 +16,11 @@ import {
 import { theme } from "@/constants/theme";
 import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
-import { searchNotes, sortNotes } from "@/utils/noteHelpers";
+import {
+  searchNotes,
+  sortNotes,
+  type NoteSortOrder,
+} from "@/utils/noteHelpers";
 
 const categories = [
   { label: "All notes", value: "all" },
@@ -49,6 +52,7 @@ export default function HomeScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<NoteSortOrder>("newest");
   const [isLoading, setIsLoading] = useState(true);
   const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -152,7 +156,7 @@ export default function HomeScreen() {
         note.category.toLowerCase() === selectedCategory
       );
     }),
-    "newest",
+    sortOrder,
   );
 
   const renderNoteCard = (note: Note) => {
@@ -324,6 +328,53 @@ export default function HomeScreen() {
               <Text style={styles.noteCount}>
                 {notes.length} {notes.length === 1 ? "NOTE" : "NOTES"}
               </Text>
+            </View>
+
+            {/* Sorting controls */}
+            <View style={styles.sortContainer}>
+              <Text style={styles.sortLabel}>Sort by date</Text>
+
+              <View style={styles.sortOptions}>
+                <Pressable
+                  onPress={() => setSortOrder("newest")}
+                  style={[
+                    styles.sortButton,
+                    sortOrder === "newest" && styles.sortButtonSelected,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Sort newest notes first"
+                  accessibilityState={{ selected: sortOrder === "newest" }}
+                >
+                  <Text
+                    style={[
+                      styles.sortButtonText,
+                      sortOrder === "newest" && styles.sortButtonTextSelected,
+                    ]}
+                  >
+                    Newest first
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setSortOrder("oldest")}
+                  style={[
+                    styles.sortButton,
+                    sortOrder === "oldest" && styles.sortButtonSelected,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Sort oldest notes first"
+                  accessibilityState={{ selected: sortOrder === "oldest" }}
+                >
+                  <Text
+                    style={[
+                      styles.sortButtonText,
+                      sortOrder === "oldest" && styles.sortButtonTextSelected,
+                    ]}
+                  >
+                    Oldest first
+                  </Text>
+                </Pressable>
+              </View>
             </View>
 
             {isLoading ? (
@@ -610,6 +661,43 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 1,
+  },
+  sortContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 18,
+  },
+  sortLabel: {
+    color: theme.colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  sortOptions: {
+    flexDirection: "row",
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.full,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  sortButton: {
+    paddingHorizontal: 13,
+    paddingVertical: 9,
+    borderRadius: theme.radius.full,
+  },
+  sortButtonSelected: {
+    backgroundColor: theme.colors.primary,
+  },
+  sortButtonText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  sortButtonTextSelected: {
+    color: theme.colors.textOnPrimary,
   },
   loadingContainer: {
     alignItems: "center",
