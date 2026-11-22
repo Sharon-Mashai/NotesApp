@@ -71,7 +71,9 @@ function getCategoryName(value: string): NoteCategory | undefined {
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const profileInitial = user?.fullName.trim().charAt(0).toUpperCase() || "U";
+
+  const username = user?.username?.trim() || "there";
+  const profileInitial = username.charAt(0).toUpperCase() || "U";
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -168,9 +170,9 @@ export default function HomeScreen() {
     });
   };
 
-  const handleSettings = () => {
-    Alert.alert("Settings", "Your settings screen will be added later.");
-  };
+ const handleSettings = () => {
+  router.push("/settings");
+};
 
   const handleDeleteRequest = (note: Note) => {
     setNoteToDelete(note);
@@ -304,7 +306,7 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View style={styles.headerText}>
               <Text style={styles.greeting}>YOUR PERSONAL SPACE</Text>
-              <Text style={styles.title}>Hello!</Text>
+              <Text style={styles.title}>Hello, {username}!</Text>
               <Text style={styles.subtitle}>What's on your mind today?</Text>
             </View>
 
@@ -822,8 +824,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
   },
-
-  // Filter and sorting controls
   controlsContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
