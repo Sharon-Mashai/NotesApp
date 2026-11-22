@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,33 +15,34 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function SettingsScreen() {
   const { logout } = useAuth();
+
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
 
   const handleSignOut = () => {
-    Alert.alert(
-      "Sign out",
-      "Are you sure you want to sign out of your account?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Sign out",
-          style: "destructive",
-          onPress: confirmSignOut,
-        },
-      ],
-    );
+    setSignOutError("");
+    setShowSignOutModal(true);
+  };
+
+  const handleCancelSignOut = () => {
+    if (!isSigningOut) {
+      setShowSignOutModal(false);
+      setSignOutError("");
+    }
   };
 
   const confirmSignOut = async () => {
     try {
       setIsSigningOut(true);
+      setSignOutError("");
+
       await logout();
+
+      setShowSignOutModal(false);
       router.replace("/login");
     } catch {
-      Alert.alert("Sign out failed", "Unable to sign out. Please try again.");
+      setSignOutError("Unable to sign out. Please try again.");
     } finally {
       setIsSigningOut(false);
     }
@@ -162,14 +163,59 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            {isSigningOut ? (
-              <ActivityIndicator color={theme.colors.status.error} />
-            ) : (
-              <Text style={[styles.arrow, styles.signOutText]}>{"\u203A"}</Text>
-            )}
+            <Text style={[styles.arrow, styles.signOutText]}>{"\u203A"}</Text>
           </Pressable>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={showSignOutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelSignOut}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIcon}>
+              <Text style={styles.modalIconText}>{"\u21AA"}</Text>
+            </View>
+
+            <Text style={styles.modalTitle}>Sign out?</Text>
+
+            <Text style={styles.modalMessage}>
+              Are you sure you want to sign out of your account?
+            </Text>
+
+            {signOutError ? (
+              <Text style={styles.errorText}>{signOutError}</Text>
+            ) : null}
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={styles.cancelButton}
+                onPress={handleCancelSignOut}
+                disabled={isSigningOut}
+                accessibilityRole="button"
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.confirmButton}
+                onPress={confirmSignOut}
+                disabled={isSigningOut}
+                accessibilityRole="button"
+              >
+                {isSigningOut ? (
+                  <ActivityIndicator color={theme.colors.white} />
+                ) : (
+                  <Text style={styles.confirmButtonText}>Sign out</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -278,5 +324,85 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     color: theme.colors.status.error,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: theme.colors.overlay,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: theme.spacing.xl,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.xxl,
+    alignItems: "center",
+  },
+  modalIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: theme.radius.full,
+    backgroundColor: "rgba(248, 113, 113, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing.lg,
+  },
+  modalIconText: {
+    color: theme.colors.status.error,
+    fontSize: 30,
+  },
+  modalTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.sizes.xl,
+    fontWeight: "700",
+    marginBottom: theme.spacing.sm,
+  },
+  modalMessage: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.sm,
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: theme.spacing.xl,
+  },
+  errorText: {
+    color: theme.colors.status.error,
+    fontSize: theme.typography.sizes.sm,
+    textAlign: "center",
+    marginBottom: theme.spacing.md,
+  },
+  modalActions: {
+    flexDirection: "row",
+    width: "100%",
+    gap: theme.spacing.md,
+  },
+  cancelButton: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surfaceElevated,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelButtonText: {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.sizes.sm,
+    fontWeight: "600",
+  },
+  confirmButton: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.status.error,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmButtonText: {
+    color: theme.colors.white,
+    fontSize: theme.typography.sizes.sm,
+    fontWeight: "600",
   },
 });
