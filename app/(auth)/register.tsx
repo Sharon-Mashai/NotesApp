@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -21,6 +20,7 @@ export default function RegisterScreen() {
   const { register } = useAuth();
 
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,12 +31,26 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     const cleanFullName = fullName.trim();
+    const cleanUsername = username.trim();
     const cleanEmail = email.trim().toLowerCase();
 
     setErrorMessage("");
 
-    if (!cleanFullName || !cleanEmail || !password || !confirmPassword) {
+    if (
+      !cleanFullName ||
+      !cleanUsername ||
+      !cleanEmail ||
+      !password ||
+      !confirmPassword
+    ) {
       setErrorMessage("Please complete all fields.");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(cleanUsername)) {
+      setErrorMessage(
+        "Username must be 3-20 characters and contain only letters, numbers or underscores.",
+      );
       return;
     }
 
@@ -60,6 +74,7 @@ export default function RegisterScreen() {
 
       await register({
         fullName: cleanFullName,
+        username: cleanUsername,
         email: cleanEmail,
         password,
       });
@@ -79,10 +94,7 @@ export default function RegisterScreen() {
       style={styles.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={styles.content}>
         <View style={styles.container}>
           <View style={styles.logoContainer}>
             <Text style={styles.logo}>N.</Text>
@@ -109,6 +121,27 @@ export default function RegisterScreen() {
                 autoCorrect={false}
                 editable={!isSubmitting}
               />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Choose a username"
+                placeholderTextColor={theme.colors.textMuted}
+                value={username}
+                onChangeText={(value) => {
+                  setUsername(value);
+                  setErrorMessage("");
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={20}
+                editable={!isSubmitting}
+              />
+              <Text style={styles.helperText}>
+                3-20 characters. Letters, numbers and underscores only.
+              </Text>
             </View>
 
             <View style={styles.inputGroup}>
@@ -233,7 +266,7 @@ export default function RegisterScreen() {
             </Link>
           </View>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -243,10 +276,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
     justifyContent: "center",
-    paddingVertical: 40,
+    paddingVertical: 12,
     paddingHorizontal: 20,
   },
   container: {
@@ -255,72 +288,77 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   logoContainer: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 15,
     backgroundColor: theme.colors.primary,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 28,
+    marginBottom: 12,
   },
   logo: {
     color: theme.colors.textOnPrimary,
-    fontSize: 27,
+    fontSize: 24,
     fontWeight: "800",
   },
   heading: {
     color: theme.colors.textPrimary,
-    fontSize: 29,
+    fontSize: 26,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 6,
   },
   subtitle: {
     color: theme.colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 23,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: 16,
   },
   form: {
-    gap: 20,
+    gap: 11,
   },
   inputGroup: {
-    gap: 9,
+    gap: 5,
   },
   label: {
     color: theme.colors.textPrimary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   input: {
-    height: 54,
-    borderRadius: 13,
+    height: 46,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     color: theme.colors.textPrimary,
-    fontSize: 15,
+    fontSize: 14,
+  },
+  helperText: {
+    color: theme.colors.textMuted,
+    fontSize: 11,
+    lineHeight: 14,
   },
   passwordContainer: {
-    height: 54,
+    height: 46,
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 13,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   passwordInput: {
     flex: 1,
     color: theme.colors.textPrimary,
-    fontSize: 15,
+    fontSize: 14,
   },
   eyeButton: {
-    padding: 8,
+    padding: 6,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -328,21 +366,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#3A2028",
     borderWidth: 1,
     borderColor: theme.colors.status.error,
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 9,
   },
   errorText: {
     color: theme.colors.status.error,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 17,
   },
   registerButton: {
-    height: 55,
-    borderRadius: 14,
+    height: 48,
+    borderRadius: 13,
     backgroundColor: theme.colors.primary,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: 3,
   },
   buttonPressed: {
     opacity: 0.8,
@@ -352,23 +390,23 @@ const styles = StyleSheet.create({
   },
   registerButtonText: {
     color: theme.colors.textOnPrimary,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 28,
+    marginTop: 16,
     flexWrap: "wrap",
   },
   loginText: {
     color: theme.colors.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
   },
   loginLink: {
     color: theme.colors.primary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
 });
