@@ -1,4 +1,3 @@
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
 
@@ -9,6 +8,7 @@ const SESSION_STORAGE_KEY = "@notes_app/session";
 
 export type UpdateProfileInput = {
   fullName: string;
+  username: string;
   email: string;
 };
 
@@ -18,7 +18,7 @@ export type ChangePasswordInput = {
   confirmPassword: string;
 };
 
-type StoredUser = Omit<User, "fullName"> & {
+type StoredUser = Omit<User, "fullName" | "username"> & {
   fullName?: string;
   username?: string;
 };
@@ -36,17 +36,25 @@ async function getUsers(): Promise<User[]> {
     return [];
   }
 
-  // Migrate older accounts from username to fullName.
+  // Preserve existing accounts and add a fallback username when needed.
   const migratedUsers: User[] = (parsedUsers as StoredUser[]).map(
     (storedUser) => {
-      const { username, ...userData } = storedUser;
+      const legacyUsername =
+        typeof storedUser.username === "string"
+          ? storedUser.username.trim()
+          : "";
+
+      const fullName =
+        typeof storedUser.fullName === "string" && storedUser.fullName.trim()
+          ? storedUser.fullName.trim()
+          : legacyUsername;
+
+      const username = legacyUsername || `user-${storedUser.id}`;
 
       return {
-        ...userData,
-        fullName:
-          typeof storedUser.fullName === "string" && storedUser.fullName.trim()
-            ? storedUser.fullName.trim()
-            : (username?.trim() ?? ""),
+        ...storedUser,
+        fullName,
+        username,
       };
     },
   );
@@ -69,10 +77,25 @@ async function hashPassword(password: string): Promise<string> {
 
 export async function registerUser(input: RegisterInput): Promise<User> {
   const fullName = input.fullName.trim();
+  const username = input.username.trim();
   const email = input.email.trim().toLowerCase();
 
-  if (!fullName || !email || !input.password) {
+  if (!fullName || !username || !email || !input.password) {
     throw new Error("Please complete all fields.");
+  }
+
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    throw new Error(
+      "Username must be 3-20 characters and contain only letters, numbers or underscores.",
+    );
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("Please enter a valid email address.");
+  }
+
+  if (input.password.length < 8) {
+    throw new Error("Your password must contain at least 8 characters.");
   }
 
   const users = await getUsers();
@@ -81,11 +104,18 @@ export async function registerUser(input: RegisterInput): Promise<User> {
     throw new Error("An account with this email already exists.");
   }
 
+  if (
+    users.some((user) => user.username.toLowerCase() === username.toLowerCase())
+  ) {
+    throw new Error("This username is already taken. Please choose another.");
+  }
+
   const passwordHash = await hashPassword(input.password);
 
   const newUser: User = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     fullName,
+    username,
     email,
     passwordHash,
     createdAt: new Date().toISOString(),
@@ -145,10 +175,17 @@ export async function updateUserProfile(
   input: UpdateProfileInput,
 ): Promise<User> {
   const fullName = input.fullName.trim();
+  const username = input.username.trim();
   const email = input.email.trim().toLowerCase();
 
-  if (!fullName || !email) {
-    throw new Error("Please enter your full name and email address.");
+  if (!fullName || !username || !email) {
+    throw new Error("Please enter your full name and username.");
+  }
+
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    throw new Error(
+      "Username must be 3-20 characters and contain only letters, numbers or underscores.",
+    );
   }
 
   const users = await getUsers();
@@ -166,9 +203,20 @@ export async function updateUserProfile(
     throw new Error("This email address is already registered.");
   }
 
+  const usernameAlreadyExists = users.some(
+    (user) =>
+      user.id !== userId &&
+      user.username.toLowerCase() === username.toLowerCase(),
+  );
+
+  if (usernameAlreadyExists) {
+    throw new Error("This username is already taken. Please choose another.");
+  }
+
   const updatedUser: User = {
     ...currentUser,
     fullName,
+    username,
     email,
   };
 
@@ -200,7 +248,9 @@ export async function changeUserPassword(
   }
 
   if (currentPassword === newPassword) {
-    throw new Error("Your new password must be different from your current password.");
+    throw new Error(
+      "Your new password must be different from your current password.",
+    );
   }
 
   const users = await getUsers();
@@ -219,9 +269,7 @@ export async function changeUserPassword(
   const newPasswordHash = await hashPassword(newPassword);
 
   const updatedUsers = users.map((user) =>
-    user.id === userId
-      ? { ...user, passwordHash: newPasswordHash }
-      : user,
+    user.id === userId ? { ...user, passwordHash: newPasswordHash } : user,
   );
 
   await saveUsers(updatedUsers);

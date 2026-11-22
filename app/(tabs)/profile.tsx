@@ -20,6 +20,7 @@ export default function ProfileScreen() {
   const { user, updateProfile, changePassword, logout } = useAuth();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
+  const [username, setUsername] = useState(user?.username ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -54,12 +55,19 @@ export default function ProfileScreen() {
       return;
     }
 
+    if (!username.trim()) {
+      setFeedbackType("error");
+      setFeedback("Please enter a username.");
+      return;
+    }
+
     try {
       setIsSaving(true);
       setFeedback("");
 
       await updateProfile({
         fullName: fullName.trim(),
+        username: username.trim(),
         email: user!.email,
       });
 
@@ -159,13 +167,15 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.displayName}>{user.fullName}</Text>
+            <Text style={styles.displayUsername}>@{user.username}</Text>
             <Text style={styles.displayEmail}>{user.email}</Text>
           </View>
 
           <View style={styles.formCard}>
             <Text style={styles.sectionTitle}>Personal information</Text>
             <Text style={styles.sectionDescription}>
-              Update your name. Your registered email address cannot be changed.
+              Update your full name and username. Your registered email address
+              cannot be changed.
             </Text>
 
             <View style={styles.fieldGroup}>
@@ -182,6 +192,26 @@ export default function ProfileScreen() {
                 autoCorrect={false}
                 style={styles.input}
               />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                value={username}
+                onChangeText={(value) => {
+                  setUsername(value);
+                  setFeedback("");
+                }}
+                placeholder="Enter your username"
+                placeholderTextColor={theme.colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={20}
+                style={styles.input}
+              />
+              <Text style={styles.fieldHint}>
+                3-20 characters. Letters, numbers and underscores only.
+              </Text>
             </View>
 
             <View style={styles.fieldGroup}>
@@ -470,6 +500,11 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.weights.bold,
     textAlign: "center",
   },
+  displayUsername: {
+    color: theme.colors.primaryLight,
+    fontSize: theme.typography.sizes.sm,
+    textAlign: "center",
+  },
   displayEmail: {
     color: theme.colors.textSecondary,
     fontSize: theme.typography.sizes.sm,
@@ -511,6 +546,10 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
+  },
+  fieldHint: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.sizes.xs,
   },
   readOnlyInput: {
     flexDirection: "row",
