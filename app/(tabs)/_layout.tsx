@@ -1,21 +1,32 @@
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Redirect, Slot } from "expo-router";
 
-import { DarkTheme, Slot, ThemeProvider } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import "react-native-reanimated";
+import { useAuth } from "@/contexts/AuthContext";
+import { theme } from "@/constants/theme";
 
-export { ErrorBoundary } from "expo-router";
+export default function ProtectedLayout() {
+  const { user, isLoading } = useAuth();
 
-SplashScreen.preventAutoHideAsync();
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
-export default function RootLayout() {
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
 
-  return (
-    <ThemeProvider value={DarkTheme}>
-      <Slot />
-    </ThemeProvider>
-  );
+  return <Slot />;
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
