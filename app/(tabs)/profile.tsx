@@ -17,16 +17,27 @@ import { useAuth } from "@/contexts/AuthContext";
 import { theme } from "@/constants/theme";
 
 export default function ProfileScreen() {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, changePassword, logout } = useAuth();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [feedback, setFeedback] = useState("");
   const [feedbackType, setFeedbackType] = useState<"success" | "error">(
     "success",
   );
+
+  const [passwordFeedback, setPasswordFeedback] = useState("");
+  const [passwordFeedbackType, setPasswordFeedbackType] = useState<
+    "success" | "error"
+  >("success");
 
   const initials = fullName
     .trim()
@@ -63,6 +74,35 @@ export default function ProfileScreen() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleChangePassword() {
+    try {
+      setIsChangingPassword(true);
+      setPasswordFeedback("");
+
+      await changePassword({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      setPasswordFeedbackType("success");
+      setPasswordFeedback("Your password has been changed successfully.");
+    } catch (error) {
+      setPasswordFeedbackType("error");
+      setPasswordFeedback(
+        error instanceof Error
+          ? error.message
+          : "Unable to change your password. Please try again.",
+      );
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -187,6 +227,103 @@ export default function ProfileScreen() {
                 <ActivityIndicator color={theme.colors.textOnPrimary} />
               ) : (
                 <Text style={styles.saveButtonText}>Save Changes</Text>
+              )}
+            </Pressable>
+          </View>
+
+          <View style={styles.formCard}>
+            <Text style={styles.sectionTitle}>Change password</Text>
+            <Text style={styles.sectionDescription}>
+              Enter your current password and choose a new password with at
+              least 8 characters.
+            </Text>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Current password</Text>
+              <TextInput
+                value={currentPassword}
+                onChangeText={(value) => {
+                  setCurrentPassword(value);
+                  setPasswordFeedback("");
+                }}
+                placeholder="Enter your current password"
+                placeholderTextColor={theme.colors.textMuted}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>New password</Text>
+              <TextInput
+                value={newPassword}
+                onChangeText={(value) => {
+                  setNewPassword(value);
+                  setPasswordFeedback("");
+                }}
+                placeholder="Enter your new password"
+                placeholderTextColor={theme.colors.textMuted}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Confirm new password</Text>
+              <TextInput
+                value={confirmPassword}
+                onChangeText={(value) => {
+                  setConfirmPassword(value);
+                  setPasswordFeedback("");
+                }}
+                placeholder="Confirm your new password"
+                placeholderTextColor={theme.colors.textMuted}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+              />
+            </View>
+
+            {passwordFeedback ? (
+              <View
+                style={[
+                  styles.feedbackContainer,
+                  passwordFeedbackType === "error"
+                    ? styles.errorFeedback
+                    : styles.successFeedback,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.feedbackText,
+                    passwordFeedbackType === "error"
+                      ? styles.errorText
+                      : styles.successText,
+                  ]}
+                >
+                  {passwordFeedback}
+                </Text>
+              </View>
+            ) : null}
+
+            <Pressable
+              onPress={handleChangePassword}
+              disabled={isChangingPassword}
+              style={({ pressed }) => [
+                styles.saveButton,
+                pressed && !isChangingPassword && styles.pressed,
+                isChangingPassword && styles.disabledButton,
+              ]}
+            >
+              {isChangingPassword ? (
+                <ActivityIndicator color={theme.colors.textOnPrimary} />
+              ) : (
+                <Text style={styles.saveButtonText}>Update Password</Text>
               )}
             </Pressable>
           </View>
@@ -355,6 +492,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontSize: theme.typography.sizes.sm,
     marginTop: -theme.spacing.md,
+    lineHeight: 20,
   },
   fieldGroup: {
     gap: theme.spacing.sm,
