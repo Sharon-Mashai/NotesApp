@@ -8,11 +8,13 @@ import {
 } from "react";
 
 import {
+  changeUserPassword,
   getCurrentUser,
   loginUser,
   logoutUser,
   registerUser,
   updateUserProfile,
+  type ChangePasswordInput,
   type UpdateProfileInput,
 } from "@/services/auth";
 
@@ -24,6 +26,7 @@ type AuthContextType = {
   register: (input: RegisterInput) => Promise<void>;
   login: (input: LoginInput) => Promise<void>;
   updateProfile: (input: UpdateProfileInput) => Promise<void>;
+  changePassword: (input: ChangePasswordInput) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -74,6 +77,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [user],
   );
 
+  const changePassword = useCallback(
+    async (input: ChangePasswordInput) => {
+      if (!user) {
+        throw new Error("You must be logged in to change your password.");
+      }
+
+      await changeUserPassword(user.id, input);
+    },
+    [user],
+  );
+
   const logout = useCallback(async () => {
     await logoutUser();
     setUser(null);
@@ -87,6 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         register,
         login,
         updateProfile,
+        changePassword,
         logout,
       }}
     >
