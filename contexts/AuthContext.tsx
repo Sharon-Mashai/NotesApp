@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -13,6 +12,8 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  updateUserProfile,
+  type UpdateProfileInput,
 } from "@/services/auth";
 
 import type { LoginInput, RegisterInput, User } from "@/types/user";
@@ -22,6 +23,7 @@ type AuthContextType = {
   isLoading: boolean;
   register: (input: RegisterInput) => Promise<void>;
   login: (input: LoginInput) => Promise<void>;
+  updateProfile: (input: UpdateProfileInput) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -60,6 +62,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(loggedInUser);
   }, []);
 
+  const updateProfile = useCallback(
+    async (input: UpdateProfileInput) => {
+      if (!user) {
+        throw new Error("You must be logged in to update your profile.");
+      }
+
+      const updatedUser = await updateUserProfile(user.id, input);
+      setUser(updatedUser);
+    },
+    [user],
+  );
+
   const logout = useCallback(async () => {
     await logoutUser();
     setUser(null);
@@ -72,6 +86,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading,
         register,
         login,
+        updateProfile,
         logout,
       }}
     >

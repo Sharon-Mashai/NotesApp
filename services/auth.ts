@@ -1,10 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
-
 import type { LoginInput, RegisterInput, User } from "@/types/user";
 
 const USERS_STORAGE_KEY = "@notes_app/users";
 const SESSION_STORAGE_KEY = "@notes_app/session";
+
+export type UpdateProfileInput = {
+  fullName: string;
+  email: string;
+};
 
 type StoredUser = Omit<User, "fullName"> & {
   fullName?: string;
@@ -126,6 +130,47 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   return currentUser;
+}
+
+export async function updateUserProfile(
+  userId: string,
+  input: UpdateProfileInput,
+): Promise<User> {
+  const fullName = input.fullName.trim();
+  const email = input.email.trim().toLowerCase();
+
+  if (!fullName || !email) {
+    throw new Error("Please enter your full name and email address.");
+  }
+
+  const users = await getUsers();
+  const currentUser = users.find((user) => user.id === userId);
+
+  if (!currentUser) {
+    throw new Error("User account could not be found.");
+  }
+
+  const emailAlreadyExists = users.some(
+    (user) => user.id !== userId && user.email === email,
+  );
+
+  if (emailAlreadyExists) {
+    throw new Error("This email address is already registered.");
+  }
+
+  const updatedUser: User = {
+    ...currentUser,
+    fullName,
+    email,
+  };
+
+  const updatedUsers = users.map((user) =>
+    user.id === userId ? updatedUser : user,
+  );
+
+  await saveUsers(updatedUsers);
+
+  return updatedUser;
 }
 
 export async function logoutUser(): Promise<void> {
