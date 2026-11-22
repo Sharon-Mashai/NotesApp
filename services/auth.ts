@@ -1,5 +1,7 @@
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
+
 import type { LoginInput, RegisterInput, User } from "@/types/user";
 
 const USERS_STORAGE_KEY = "@notes_app/users";
@@ -8,6 +10,12 @@ const SESSION_STORAGE_KEY = "@notes_app/session";
 export type UpdateProfileInput = {
   fullName: string;
   email: string;
+};
+
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 type StoredUser = Omit<User, "fullName"> & {
@@ -171,6 +179,52 @@ export async function updateUserProfile(
   await saveUsers(updatedUsers);
 
   return updatedUser;
+}
+
+export async function changeUserPassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<void> {
+  const { currentPassword, newPassword, confirmPassword } = input;
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    throw new Error("Please complete all password fields.");
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error("Your new password must contain at least 8 characters.");
+  }
+
+  if (newPassword !== confirmPassword) {
+    throw new Error("Your new passwords do not match.");
+  }
+
+  if (currentPassword === newPassword) {
+    throw new Error("Your new password must be different from your current password.");
+  }
+
+  const users = await getUsers();
+  const currentUser = users.find((user) => user.id === userId);
+
+  if (!currentUser) {
+    throw new Error("User account could not be found.");
+  }
+
+  const currentPasswordHash = await hashPassword(currentPassword);
+
+  if (currentUser.passwordHash !== currentPasswordHash) {
+    throw new Error("Your current password is incorrect.");
+  }
+
+  const newPasswordHash = await hashPassword(newPassword);
+
+  const updatedUsers = users.map((user) =>
+    user.id === userId
+      ? { ...user, passwordHash: newPasswordHash }
+      : user,
+  );
+
+  await saveUsers(updatedUsers);
 }
 
 export async function logoutUser(): Promise<void> {
