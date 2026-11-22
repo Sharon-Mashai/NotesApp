@@ -59,8 +59,16 @@ export default function RegisterScreen() {
       return;
     }
 
-    if (password.length < 8) {
-      setErrorMessage("Your password must contain at least 8 characters.");
+    const isStrongPassword =
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password);
+
+    if (!isStrongPassword) {
+      setErrorMessage(
+        "Password must be at least 8 characters and contain an uppercase letter, a lowercase letter and a number.",
+      );
       return;
     }
 
@@ -195,6 +203,10 @@ export default function RegisterScreen() {
                   />
                 </Pressable>
               </View>
+              <Text style={styles.helperText}>
+                At least 8 characters, including uppercase, lowercase and a
+                number.
+              </Text>
             </View>
 
             <View style={styles.inputGroup}>

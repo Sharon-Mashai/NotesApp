@@ -6,6 +6,18 @@ import type { LoginInput, RegisterInput, User } from "@/types/user";
 const USERS_STORAGE_KEY = "@notes_app/users";
 const SESSION_STORAGE_KEY = "@notes_app/session";
 
+const PASSWORD_REQUIREMENTS =
+  "Password must be at least 8 characters long and contain an uppercase letter, a lowercase letter and a number.";
+
+function isStrongPassword(password: string): boolean {
+  return (
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password)
+  );
+}
+
 export type UpdateProfileInput = {
   fullName: string;
   username: string;
@@ -94,8 +106,8 @@ export async function registerUser(input: RegisterInput): Promise<User> {
     throw new Error("Please enter a valid email address.");
   }
 
-  if (input.password.length < 8) {
-    throw new Error("Your password must contain at least 8 characters.");
+  if (!isStrongPassword(input.password)) {
+    throw new Error(PASSWORD_REQUIREMENTS);
   }
 
   const users = await getUsers();
@@ -239,8 +251,8 @@ export async function changeUserPassword(
     throw new Error("Please complete all password fields.");
   }
 
-  if (newPassword.length < 8) {
-    throw new Error("Your new password must contain at least 8 characters.");
+  if (!isStrongPassword(newPassword)) {
+    throw new Error(PASSWORD_REQUIREMENTS);
   }
 
   if (newPassword !== confirmPassword) {
