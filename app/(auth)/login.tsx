@@ -1,8 +1,19 @@
 import { useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Link, router } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { theme } from "@/constants/theme";
 
@@ -13,15 +24,15 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async () => {
     const cleanEmail = email.trim().toLowerCase();
 
+    setErrorMessage("");
+
     if (!cleanEmail || !password) {
-      Alert.alert(
-        "Missing information",
-        "Please enter your email and password.",
-      );
+      setErrorMessage("Please enter your email and password.");
       return;
     }
 
@@ -35,8 +46,7 @@ export default function LoginScreen() {
 
       router.replace("/");
     } catch (error) {
-      Alert.alert(
-        "Login failed",
+      setErrorMessage(
         error instanceof Error ? error.message : "Something went wrong.",
       );
     } finally {
@@ -71,7 +81,10 @@ export default function LoginScreen() {
                 placeholder="Enter your email"
                 placeholderTextColor={theme.colors.textMuted}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  setErrorMessage("");
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -88,7 +101,10 @@ export default function LoginScreen() {
                   placeholder="Enter your password"
                   placeholderTextColor={theme.colors.textMuted}
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    setErrorMessage("");
+                  }}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   editable={!isSubmitting}
@@ -112,6 +128,12 @@ export default function LoginScreen() {
                 </Pressable>
               </View>
             </View>
+
+            {errorMessage ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
 
             <Pressable
               style={({ pressed }) => [
@@ -230,6 +252,18 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: "center",
     justifyContent: "center",
+  },
+  errorContainer: {
+    backgroundColor: "#3A2028",
+    borderWidth: 1,
+    borderColor: theme.colors.status.error,
+    borderRadius: 12,
+    padding: 12,
+  },
+  errorText: {
+    color: theme.colors.status.error,
+    fontSize: 14,
+    lineHeight: 20,
   },
   loginButton: {
     height: 55,

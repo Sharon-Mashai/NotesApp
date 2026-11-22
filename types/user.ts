@@ -1,13 +1,13 @@
 export type User = {
   id: string;
-  username: string;
+  fullName: string;
   email: string;
   passwordHash: string;
   createdAt: string;
 };
 
 export type RegisterInput = {
-  username: string;
+  fullName: string;
   email: string;
   password: string;
 };

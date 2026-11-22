@@ -6,6 +6,11 @@ import type { LoginInput, RegisterInput, User } from "@/types/user";
 const USERS_STORAGE_KEY = "@notes_app/users";
 const SESSION_STORAGE_KEY = "@notes_app/session";
 
+type StoredUser = Omit<User, "fullName"> & {
+  fullName?: string;
+  username?: string;
+};
+
 async function getUsers(): Promise<User[]> {
   const storedUsers = await AsyncStorage.getItem(USERS_STORAGE_KEY);
 
@@ -15,7 +20,28 @@ async function getUsers(): Promise<User[]> {
 
   const parsedUsers: unknown = JSON.parse(storedUsers);
 
-  return Array.isArray(parsedUsers) ? (parsedUsers as User[]) : [];
+  if (!Array.isArray(parsedUsers)) {
+    return [];
+  }
+
+  // Migrate older accounts from username to fullName.
+  const migratedUsers: User[] = (parsedUsers as StoredUser[]).map(
+    (storedUser) => {
+      const { username, ...userData } = storedUser;
+
+      return {
+        ...userData,
+        fullName:
+          typeof storedUser.fullName === "string" && storedUser.fullName.trim()
+            ? storedUser.fullName.trim()
+            : (username?.trim() ?? ""),
+      };
+    },
+  );
+
+  await saveUsers(migratedUsers);
+
+  return migratedUsers;
 }
 
 async function saveUsers(users: User[]): Promise<void> {
@@ -30,18 +56,16 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 export async function registerUser(input: RegisterInput): Promise<User> {
-  const username = input.username.trim();
+  const fullName = input.fullName.trim();
   const email = input.email.trim().toLowerCase();
 
-  if (!username || !email || !input.password) {
+  if (!fullName || !email || !input.password) {
     throw new Error("Please complete all fields.");
   }
 
   const users = await getUsers();
 
-  const emailExists = users.some((user) => user.email === email);
-
-  if (emailExists) {
+  if (users.some((user) => user.email === email)) {
     throw new Error("An account with this email already exists.");
   }
 
@@ -49,7 +73,7 @@ export async function registerUser(input: RegisterInput): Promise<User> {
 
   const newUser: User = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    username,
+    fullName,
     email,
     passwordHash,
     createdAt: new Date().toISOString(),

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -21,38 +20,38 @@ import { theme } from "@/constants/theme";
 export default function RegisterScreen() {
   const { register } = useAuth();
 
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleRegister = async () => {
-    const cleanUsername = username.trim();
+    const cleanFullName = fullName.trim();
     const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanUsername || !cleanEmail || !password || !confirmPassword) {
-      Alert.alert("Missing information", "Please complete all fields.");
+    setErrorMessage("");
+
+    if (!cleanFullName || !cleanEmail || !password || !confirmPassword) {
+      setErrorMessage("Please complete all fields.");
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      Alert.alert("Invalid email", "Please enter a valid email address.");
+      setErrorMessage("Please enter a valid email address.");
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert(
-        "Weak password",
-        "Your password must contain at least 8 characters.",
-      );
+      setErrorMessage("Your password must contain at least 8 characters.");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Passwords do not match", "Please check your passwords.");
+      setErrorMessage("Your passwords do not match. Please check them.");
       return;
     }
 
@@ -60,20 +59,14 @@ export default function RegisterScreen() {
       setIsSubmitting(true);
 
       await register({
-        username: cleanUsername,
+        fullName: cleanFullName,
         email: cleanEmail,
         password,
       });
 
-      Alert.alert("Account created", "Welcome to NotesApp!", [
-        {
-          text: "Continue",
-          onPress: () => router.replace("/"),
-        },
-      ]);
+      router.replace("/");
     } catch (error) {
-      Alert.alert(
-        "Registration failed",
+      setErrorMessage(
         error instanceof Error ? error.message : "Something went wrong.",
       );
     } finally {
@@ -102,14 +95,17 @@ export default function RegisterScreen() {
 
           <View style={styles.form}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Username</Text>
+              <Text style={styles.label}>Full Names</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your username"
+                placeholder="Enter your full names"
                 placeholderTextColor={theme.colors.textMuted}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
+                value={fullName}
+                onChangeText={(value) => {
+                  setFullName(value);
+                  setErrorMessage("");
+                }}
+                autoCapitalize="words"
                 autoCorrect={false}
                 editable={!isSubmitting}
               />
@@ -122,7 +118,10 @@ export default function RegisterScreen() {
                 placeholder="Enter your email"
                 placeholderTextColor={theme.colors.textMuted}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  setErrorMessage("");
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -138,7 +137,10 @@ export default function RegisterScreen() {
                   placeholder="Create a password"
                   placeholderTextColor={theme.colors.textMuted}
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    setErrorMessage("");
+                  }}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   editable={!isSubmitting}
@@ -170,7 +172,10 @@ export default function RegisterScreen() {
                   placeholder="Enter your password again"
                   placeholderTextColor={theme.colors.textMuted}
                   value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  onChangeText={(value) => {
+                    setConfirmPassword(value);
+                    setErrorMessage("");
+                  }}
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
                   editable={!isSubmitting}
@@ -195,6 +200,12 @@ export default function RegisterScreen() {
                 </Pressable>
               </View>
             </View>
+
+            {errorMessage ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
 
             <Pressable
               style={({ pressed }) => [
@@ -312,6 +323,18 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: "center",
     justifyContent: "center",
+  },
+  errorContainer: {
+    backgroundColor: "#3A2028",
+    borderWidth: 1,
+    borderColor: theme.colors.status.error,
+    borderRadius: 12,
+    padding: 12,
+  },
+  errorText: {
+    color: theme.colors.status.error,
+    fontSize: 14,
+    lineHeight: 20,
   },
   registerButton: {
     height: 55,
