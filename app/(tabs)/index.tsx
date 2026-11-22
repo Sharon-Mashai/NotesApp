@@ -14,6 +14,7 @@ import {
 } from "react-native";
 
 import { theme } from "@/constants/theme";
+import { useAuth } from "@/contexts/AuthContext";
 import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
 import {
@@ -49,6 +50,9 @@ function formatDate(date: string) {
 }
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+  const profileInitial = user?.fullName.trim().charAt(0).toUpperCase() || "U";
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -239,10 +243,11 @@ export default function HomeScreen() {
             <View style={styles.headerActions}>
               <Pressable
                 style={styles.profileButton}
+                onPress={() => router.push("/profile")}
                 accessibilityRole="button"
-                accessibilityLabel="Profile"
+                accessibilityLabel="Open profile"
               >
-                <Text style={styles.profileInitial}>S</Text>
+                <Text style={styles.profileInitial}>{profileInitial}</Text>
               </Pressable>
 
               <Pressable
