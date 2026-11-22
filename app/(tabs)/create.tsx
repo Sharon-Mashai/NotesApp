@@ -19,18 +19,59 @@ import type { NoteCategory } from "@/types/note";
 
 const categories: NoteCategory[] = ["Work", "Study", "Personal"];
 
+function getCategoryRoute(category?: NoteCategory) {
+  if (category === "Work") {
+    return "/categories/work" as const;
+  }
+
+  if (category === "Study") {
+    return "/categories/study" as const;
+  }
+
+  if (category === "Personal") {
+    return "/categories/personal" as const;
+  }
+
+  return "/" as const;
+}
+
 export default function CreateNoteScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, category, returnTo } = useLocalSearchParams<{
+    id?: string;
+    category?: string;
+    returnTo?: string;
+  }>();
+
   const noteId = typeof id === "string" ? id : undefined;
+
+  const presetCategory =
+    typeof category === "string" &&
+    categories.includes(category as NoteCategory)
+      ? (category as NoteCategory)
+      : undefined;
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<NoteCategory>("Personal");
+  const [selectedCategory, setSelectedCategory] = useState<NoteCategory>(
+    presetCategory ?? "Personal",
+  );
+  const [returnCategory, setReturnCategory] = useState<
+    NoteCategory | undefined
+  >(presetCategory);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingNote, setIsLoadingNote] = useState(Boolean(noteId));
 
-  // Load an existing note when an ID is provided.
+  const returnToCategory = getCategoryRoute(returnCategory);
+
+  const navigateBack = () => {
+    if (returnTo === "home") {
+      router.replace("/");
+      return;
+    }
+
+    router.replace(returnToCategory);
+  };
+
   useEffect(() => {
     let isActive = true;
 
@@ -48,8 +89,8 @@ export default function CreateNoteScreen() {
           if (isActive) {
             Alert.alert(
               "Note not found",
-              "This note may have been deleted. Please select another note.",
-              [{ text: "OK", onPress: () => router.back() }],
+              "This note may have been deleted. Please return to your notes.",
+              [{ text: "OK", onPress: navigateBack }],
             );
           }
           return;
@@ -59,13 +100,14 @@ export default function CreateNoteScreen() {
           setTitle(existingNote.title);
           setContent(existingNote.content);
           setSelectedCategory(existingNote.category);
+          setReturnCategory(existingNote.category);
         }
       } catch {
         if (isActive) {
           Alert.alert(
             "Unable to load note",
             "Something went wrong while loading this note. Please try again.",
-            [{ text: "OK", onPress: () => router.back() }],
+            [{ text: "OK", onPress: navigateBack }],
           );
         }
       } finally {
@@ -109,11 +151,11 @@ export default function CreateNoteScreen() {
         await createNote({
           title: title.trim(),
           content: content.trim(),
-          category: selectedCategory,
+          category: presetCategory ?? selectedCategory,
         });
       }
 
-      router.back();
+      navigateBack();
     } catch {
       Alert.alert(
         noteId ? "Unable to update note" : "Unable to save note",
@@ -125,7 +167,7 @@ export default function CreateNoteScreen() {
   };
 
   const handleCancel = () => {
-    router.back();
+    navigateBack();
   };
 
   if (isLoadingNote) {
@@ -148,7 +190,6 @@ export default function CreateNoteScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.contentWrapper}>
-          {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerText}>
               <Text style={styles.eyebrow}>YOUR PERSONAL SPACE</Text>
@@ -173,7 +214,6 @@ export default function CreateNoteScreen() {
             </Pressable>
           </View>
 
-          {/* Title */}
           <View style={styles.field}>
             <Text style={styles.label}>Title</Text>
 
@@ -190,7 +230,6 @@ export default function CreateNoteScreen() {
             <Text style={styles.helperText}>Optional</Text>
           </View>
 
-          {/* Content */}
           <View style={styles.field}>
             <Text style={styles.label}>What's on your mind?</Text>
 
@@ -210,40 +249,47 @@ export default function CreateNoteScreen() {
             </Text>
           </View>
 
-          {/* Category */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Choose a category</Text>
+          {!noteId && !presetCategory && (
+            <View style={styles.field}>
+              <Text style={styles.label}>Choose a category</Text>
 
-            <View style={styles.categoryList}>
-              {categories.map((category) => {
-                const isSelected = selectedCategory === category;
+              <View style={styles.categoryList}>
+                {categories.map((categoryOption) => {
+                  const isSelected = selectedCategory === categoryOption;
 
-                return (
-                  <Pressable
-                    key={category}
-                    onPress={() => setSelectedCategory(category)}
-                    style={[
-                      styles.categoryButton,
-                      isSelected && styles.categoryButtonSelected,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Text
+                  return (
+                    <Pressable
+                      key={categoryOption}
+                      onPress={() => setSelectedCategory(categoryOption)}
                       style={[
-                        styles.categoryButtonText,
-                        isSelected && styles.categoryButtonTextSelected,
+                        styles.categoryButton,
+                        isSelected && styles.categoryButtonSelected,
                       ]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
                     >
-                      {category}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+                      <Text
+                        style={[
+                          styles.categoryButtonText,
+                          isSelected && styles.categoryButtonTextSelected,
+                        ]}
+                      >
+                        {categoryOption}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          )}
 
-          {/* Save or update */}
+          {(presetCategory || noteId) && (
+            <View style={styles.lockedCategory}>
+              <Text style={styles.lockedCategoryLabel}>SAVING UNDER</Text>
+              <Text style={styles.lockedCategoryText}>{selectedCategory}</Text>
+            </View>
+          )}
+
           <Pressable
             onPress={handleSave}
             disabled={isSaving}
@@ -402,6 +448,26 @@ const styles = StyleSheet.create({
   },
   categoryButtonTextSelected: {
     color: theme.colors.textOnPrimary,
+  },
+  lockedCategory: {
+    marginBottom: 28,
+    padding: 16,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  lockedCategoryLabel: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+    marginBottom: 7,
+  },
+  lockedCategoryText: {
+    color: theme.colors.primaryLight,
+    fontSize: 15,
+    fontWeight: "700",
   },
   saveButton: {
     minHeight: 56,
