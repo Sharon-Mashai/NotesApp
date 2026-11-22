@@ -30,6 +30,13 @@ const categories = [
   { label: "Personal", value: "personal" },
 ];
 
+const sortOptions: { label: string; value: NoteSortOrder }[] = [
+  { label: "Date", value: "date" },
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+  { label: "Name", value: "name" },
+];
+
 function getCategoryColor(category: NoteCategory) {
   switch (category) {
     case "Work":
@@ -49,14 +56,29 @@ function formatDate(date: string) {
   });
 }
 
+function getCategoryName(value: string): NoteCategory | undefined {
+  switch (value) {
+    case "work":
+      return "Work";
+    case "study":
+      return "Study";
+    case "personal":
+      return "Personal";
+    default:
+      return undefined;
+  }
+}
+
 export default function HomeScreen() {
   const { user } = useAuth();
   const profileInitial = user?.fullName.trim().charAt(0).toUpperCase() || "U";
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<NoteSortOrder>("newest");
+  const [sortOrder, setSortOrder] = useState<NoteSortOrder>("date");
   const [isLoading, setIsLoading] = useState(true);
   const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -95,14 +117,54 @@ export default function HomeScreen() {
     }, []),
   );
 
+  const handleCategoryNavigation = (categoryValue: string) => {
+    if (categoryValue === "all") {
+      setSelectedCategory("all");
+      return;
+    }
+
+    switch (categoryValue) {
+      case "work":
+        router.push("/(tabs)/categories/work");
+        break;
+      case "study":
+        router.push("/(tabs)/categories/study");
+        break;
+      case "personal":
+        router.push("/(tabs)/categories/personal");
+        break;
+    }
+  };
+
+  const handleFilterSelect = (categoryValue: string) => {
+    setSelectedCategory(categoryValue);
+    setIsFilterMenuOpen(false);
+  };
+
+  const handleSortSelect = (order: NoteSortOrder) => {
+    setSortOrder(order);
+    setIsSortMenuOpen(false);
+  };
+
   const handleAddNote = () => {
-    router.push("/create");
+    const categoryName = getCategoryName(selectedCategory);
+
+    router.push({
+      pathname: "/create",
+      params: {
+        ...(categoryName ? { category: categoryName } : {}),
+        returnTo: "home",
+      },
+    });
   };
 
   const handleEditNote = (note: Note) => {
     router.push({
       pathname: "/create",
-      params: { id: note.id },
+      params: {
+        id: note.id,
+        returnTo: "home",
+      },
     });
   };
 
@@ -163,6 +225,13 @@ export default function HomeScreen() {
     sortOrder,
   );
 
+  const selectedFilterLabel =
+    categories.find((category) => category.value === selectedCategory)?.label ??
+    "All notes";
+
+  const selectedSortLabel =
+    sortOptions.find((option) => option.value === sortOrder)?.label ?? "Date";
+
   const renderNoteCard = (note: Note) => {
     const categoryColor = getCategoryColor(note.category);
 
@@ -194,7 +263,6 @@ export default function HomeScreen() {
           {note.content}
         </Text>
 
-        {/* Edit and Delete actions */}
         <View style={styles.noteActions}>
           <Pressable
             onPress={() => handleEditNote(note)}
@@ -285,7 +353,7 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* Categories */}
+          {/* Category navigation */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Categories</Text>
@@ -297,16 +365,19 @@ export default function HomeScreen() {
               contentContainerStyle={styles.categoryList}
             >
               {categories.map((category) => {
-                const isSelected = selectedCategory === category.value;
+                const isSelected =
+                  category.value === "all" && selectedCategory === "all";
 
                 return (
                   <Pressable
                     key={category.value}
-                    onPress={() => setSelectedCategory(category.value)}
+                    onPress={() => handleCategoryNavigation(category.value)}
                     style={[
                       styles.categoryChip,
                       isSelected && styles.categoryChipSelected,
                     ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Open ${category.label}`}
                   >
                     <Text
                       style={[
@@ -331,54 +402,139 @@ export default function HomeScreen() {
               </View>
 
               <Text style={styles.noteCount}>
-                {notes.length} {notes.length === 1 ? "NOTE" : "NOTES"}
+                {filteredNotes.length}{" "}
+                {filteredNotes.length === 1 ? "NOTE" : "NOTES"}
               </Text>
             </View>
 
-            {/* Sorting controls */}
-            <View style={styles.sortContainer}>
-              <Text style={styles.sortLabel}>Sort by date</Text>
+            {/* Filter and sorting controls */}
+            <View style={styles.controlsContainer}>
+              {/* Filter */}
+              <View style={styles.controlColumn}>
+                <Text style={styles.controlLabel}>FILTER NOTES</Text>
 
-              <View style={styles.sortOptions}>
                 <Pressable
-                  onPress={() => setSortOrder("newest")}
-                  style={[
-                    styles.sortButton,
-                    sortOrder === "newest" && styles.sortButtonSelected,
+                  onPress={() => {
+                    setIsFilterMenuOpen((current) => !current);
+                    setIsSortMenuOpen(false);
+                  }}
+                  style={({ pressed }) => [
+                    styles.controlButton,
+                    isFilterMenuOpen && styles.controlButtonActive,
+                    pressed && styles.buttonPressed,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel="Sort newest notes first"
-                  accessibilityState={{ selected: sortOrder === "newest" }}
+                  accessibilityLabel={`Filter notes: ${selectedFilterLabel}`}
+                  accessibilityState={{ expanded: isFilterMenuOpen }}
                 >
-                  <Text
-                    style={[
-                      styles.sortButtonText,
-                      sortOrder === "newest" && styles.sortButtonTextSelected,
-                    ]}
-                  >
-                    Newest first
+                  <View style={styles.controlButtonLeft}>
+                    <Text style={styles.controlIcon}>{"\u2630"}</Text>
+                    <Text style={styles.controlButtonText}>
+                      {selectedFilterLabel}
+                    </Text>
+                  </View>
+                  <Text style={styles.controlChevron}>
+                    {isFilterMenuOpen ? "\u25B2" : "\u25BC"}
                   </Text>
                 </Pressable>
 
+                {isFilterMenuOpen && (
+                  <View style={styles.dropdownMenu}>
+                    {categories.map((category) => {
+                      const isSelected = selectedCategory === category.value;
+
+                      return (
+                        <Pressable
+                          key={category.value}
+                          onPress={() => handleFilterSelect(category.value)}
+                          style={[
+                            styles.dropdownItem,
+                            isSelected && styles.dropdownItemSelected,
+                          ]}
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: isSelected }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              isSelected && styles.dropdownItemTextSelected,
+                            ]}
+                          >
+                            {category.label}
+                          </Text>
+
+                          {isSelected && (
+                            <Text style={styles.dropdownCheck}>{"\u2713"}</Text>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+
+              {/* Sort */}
+              <View style={styles.controlColumn}>
+                <Text style={styles.controlLabel}>SORT BY</Text>
+
                 <Pressable
-                  onPress={() => setSortOrder("oldest")}
-                  style={[
-                    styles.sortButton,
-                    sortOrder === "oldest" && styles.sortButtonSelected,
+                  onPress={() => {
+                    setIsSortMenuOpen((current) => !current);
+                    setIsFilterMenuOpen(false);
+                  }}
+                  style={({ pressed }) => [
+                    styles.controlButton,
+                    isSortMenuOpen && styles.controlButtonActive,
+                    pressed && styles.buttonPressed,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel="Sort oldest notes first"
-                  accessibilityState={{ selected: sortOrder === "oldest" }}
+                  accessibilityLabel={`Sort notes by ${selectedSortLabel}`}
+                  accessibilityState={{ expanded: isSortMenuOpen }}
                 >
-                  <Text
-                    style={[
-                      styles.sortButtonText,
-                      sortOrder === "oldest" && styles.sortButtonTextSelected,
-                    ]}
-                  >
-                    Oldest first
+                  <View style={styles.controlButtonLeft}>
+                    <Text style={styles.controlIcon}>{"\u2195"}</Text>
+                    <Text style={styles.controlButtonText}>
+                      {selectedSortLabel}
+                    </Text>
+                  </View>
+                  <Text style={styles.controlChevron}>
+                    {isSortMenuOpen ? "\u25B2" : "\u25BC"}
                   </Text>
                 </Pressable>
+
+                {isSortMenuOpen && (
+                  <View style={styles.dropdownMenu}>
+                    {sortOptions.map((option) => {
+                      const isSelected = sortOrder === option.value;
+
+                      return (
+                        <Pressable
+                          key={option.value}
+                          onPress={() => handleSortSelect(option.value)}
+                          style={[
+                            styles.dropdownItem,
+                            isSelected && styles.dropdownItemSelected,
+                          ]}
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: isSelected }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              isSelected && styles.dropdownItemTextSelected,
+                            ]}
+                          >
+                            {option.label}
+                          </Text>
+
+                          {isSelected && (
+                            <Text style={styles.dropdownCheck}>{"\u2713"}</Text>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
             </View>
 
@@ -392,7 +548,6 @@ export default function HomeScreen() {
                 {filteredNotes.map(renderNoteCard)}
               </View>
             ) : notes.length === 0 ? (
-              /* Empty state */
               <View style={styles.emptyState}>
                 <Image
                   source={require("../../assets/images/empty-state.png")}
@@ -667,42 +822,106 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
   },
-  sortContainer: {
+
+  // Filter and sorting controls
+  controlsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
+    alignItems: "flex-start",
     gap: 12,
-    marginBottom: 18,
+    marginBottom: 22,
+    zIndex: 5,
   },
-  sortLabel: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
-    fontWeight: "600",
+  controlColumn: {
+    flex: 1,
+    minWidth: 0,
+    position: "relative",
+    zIndex: 5,
   },
-  sortOptions: {
+  controlLabel: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.1,
+    marginBottom: 9,
+  },
+  controlButton: {
+    minHeight: 50,
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.full,
-    padding: 4,
     borderWidth: 1,
     borderColor: theme.colors.border,
-  },
-  sortButton: {
+    borderRadius: theme.radius.lg,
     paddingHorizontal: 13,
-    paddingVertical: 9,
-    borderRadius: theme.radius.full,
+    gap: 8,
   },
-  sortButtonSelected: {
-    backgroundColor: theme.colors.primary,
+  controlButtonActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.surfaceElevated,
   },
-  sortButtonText: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
+  controlButtonLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    minWidth: 0,
+  },
+  controlIcon: {
+    color: theme.colors.primaryLight,
+    fontSize: 19,
+  },
+  controlButtonText: {
+    color: theme.colors.textPrimary,
+    fontSize: 13,
     fontWeight: "600",
+    flexShrink: 1,
   },
-  sortButtonTextSelected: {
-    color: theme.colors.textOnPrimary,
+  controlChevron: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: 80,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.lg,
+    padding: 6,
+    zIndex: 20,
+    elevation: 8,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+  },
+  dropdownItem: {
+    minHeight: 43,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    borderRadius: theme.radius.md,
+  },
+  dropdownItemSelected: {
+    backgroundColor: `${theme.colors.primary}20`,
+  },
+  dropdownItemText: {
+    color: theme.colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  dropdownItemTextSelected: {
+    color: theme.colors.primaryLight,
+    fontWeight: "700",
+  },
+  dropdownCheck: {
+    color: theme.colors.primaryLight,
+    fontSize: 16,
+    fontWeight: "700",
   },
   loadingContainer: {
     alignItems: "center",

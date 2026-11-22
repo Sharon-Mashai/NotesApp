@@ -1,6 +1,7 @@
+
 import type { Note } from "@/types/note";
 
-export type NoteSortOrder = "newest" | "oldest";
+export type NoteSortOrder = "date" | "newest" | "oldest" | "name";
 
 export function searchNotes(notes: Note[], searchTerm: string): Note[] {
   const query = searchTerm.trim().toLowerCase();
@@ -20,12 +21,24 @@ export function searchNotes(notes: Note[], searchTerm: string): Note[] {
 
 export function sortNotes(
   notes: Note[],
-  order: NoteSortOrder = "newest",
+  order: NoteSortOrder = "date",
 ): Note[] {
   return [...notes].sort((first, second) => {
+    if (order === "name") {
+      const firstTitle = first.title.trim().toLowerCase();
+      const secondTitle = second.title.trim().toLowerCase();
+
+      return firstTitle.localeCompare(secondTitle);
+    }
+
     const firstDate = new Date(first.createdAt).getTime();
     const secondDate = new Date(second.createdAt).getTime();
 
-    return order === "newest" ? secondDate - firstDate : firstDate - secondDate;
+    // Date and Newest display the most recently created notes first.
+    if (order === "date" || order === "newest") {
+      return secondDate - firstDate;
+    }
+
+    return firstDate - secondDate;
   });
 }
