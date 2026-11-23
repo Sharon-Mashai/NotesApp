@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -12,7 +11,11 @@ import {
 } from "react-native";
 import { Link, router } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
+import {
+  Notebook01Icon,
+  ViewIcon,
+  ViewOffIcon,
+} from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -109,7 +112,11 @@ export default function RegisterScreen() {
       <View style={styles.content}>
         <View style={styles.container}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>N.</Text>
+            <HugeiconsIcon
+              icon={Notebook01Icon}
+              size={28}
+              color={theme.colors.textOnPrimary}
+            />
           </View>
 
           <Text style={styles.heading}>Create account</Text>
@@ -313,11 +320,6 @@ function createStyles(theme: AppTheme) {
       justifyContent: "center",
       alignSelf: "center",
       marginBottom: 12,
-    },
-    logo: {
-      color: theme.colors.textOnPrimary,
-      fontSize: 24,
-      fontWeight: "800",
     },
     heading: {
       color: theme.colors.textPrimary,
