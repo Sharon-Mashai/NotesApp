@@ -12,6 +12,19 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import {
+  Add01Icon,
+  Alert01Icon,
+  Cancel01Icon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  FilterIcon,
+  Search01Icon,
+  Settings01Icon,
+  Sorting01Icon,
+} from "@hugeicons/core-free-icons";
 
 import { type AppTheme, type ThemeMode } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
@@ -330,14 +343,22 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Settings"
               >
-                <Text style={styles.settingsIcon}>{"\u2699"}</Text>
+                <HugeiconsIcon
+                  icon={Settings01Icon}
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
               </Pressable>
             </View>
           </View>
 
           {/* Search */}
           <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>{"\u2315"}</Text>
+            <HugeiconsIcon
+              icon={Search01Icon}
+              size={22}
+              color={theme.colors.textMuted}
+            />
 
             <TextInput
               style={styles.searchInput}
@@ -353,8 +374,13 @@ export default function HomeScreen() {
                 onPress={() => setSearchQuery("")}
                 accessibilityRole="button"
                 accessibilityLabel="Clear search"
+                hitSlop={8}
               >
-                <Text style={styles.clearSearch}>{"\u00D7"}</Text>
+                <HugeiconsIcon
+                  icon={Cancel01Icon}
+                  size={20}
+                  color={theme.colors.textSecondary}
+                />
               </Pressable>
             )}
           </View>
@@ -434,14 +460,21 @@ export default function HomeScreen() {
                   accessibilityState={{ expanded: isFilterMenuOpen }}
                 >
                   <View style={styles.controlButtonLeft}>
-                    <Text style={styles.controlIcon}>{"\u2630"}</Text>
+                    <HugeiconsIcon
+                      icon={FilterIcon}
+                      size={18}
+                      color={theme.colors.primaryLight}
+                    />
                     <Text style={styles.controlButtonText}>
                       {selectedFilterLabel}
                     </Text>
                   </View>
-                  <Text style={styles.controlChevron}>
-                    {isFilterMenuOpen ? "\u25B2" : "\u25BC"}
-                  </Text>
+
+                  <HugeiconsIcon
+                    icon={isFilterMenuOpen ? ChevronUpIcon : ChevronDownIcon}
+                    size={16}
+                    color={theme.colors.textMuted}
+                  />
                 </Pressable>
 
                 {isFilterMenuOpen && (
@@ -470,7 +503,11 @@ export default function HomeScreen() {
                           </Text>
 
                           {isSelected && (
-                            <Text style={styles.dropdownCheck}>{"\u2713"}</Text>
+                            <HugeiconsIcon
+                              icon={CheckIcon}
+                              size={17}
+                              color={theme.colors.primaryLight}
+                            />
                           )}
                         </Pressable>
                       );
@@ -498,14 +535,21 @@ export default function HomeScreen() {
                   accessibilityState={{ expanded: isSortMenuOpen }}
                 >
                   <View style={styles.controlButtonLeft}>
-                    <Text style={styles.controlIcon}>{"\u2195"}</Text>
+                    <HugeiconsIcon
+                      icon={Sorting01Icon}
+                      size={18}
+                      color={theme.colors.primaryLight}
+                    />
                     <Text style={styles.controlButtonText}>
                       {selectedSortLabel}
                     </Text>
                   </View>
-                  <Text style={styles.controlChevron}>
-                    {isSortMenuOpen ? "\u25B2" : "\u25BC"}
-                  </Text>
+
+                  <HugeiconsIcon
+                    icon={isSortMenuOpen ? ChevronUpIcon : ChevronDownIcon}
+                    size={16}
+                    color={theme.colors.textMuted}
+                  />
                 </Pressable>
 
                 {isSortMenuOpen && (
@@ -534,7 +578,11 @@ export default function HomeScreen() {
                           </Text>
 
                           {isSelected && (
-                            <Text style={styles.dropdownCheck}>{"\u2713"}</Text>
+                            <HugeiconsIcon
+                              icon={CheckIcon}
+                              size={17}
+                              color={theme.colors.primaryLight}
+                            />
                           )}
                         </Pressable>
                       );
@@ -577,7 +625,11 @@ export default function HomeScreen() {
                   ]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.createButtonIcon}>{"\uFF0B"}</Text>
+                  <HugeiconsIcon
+                    icon={Add01Icon}
+                    size={21}
+                    color={theme.colors.textOnPrimary}
+                  />
                   <Text style={styles.createButtonText}>
                     Create your first note
                   </Text>
@@ -601,8 +653,13 @@ export default function HomeScreen() {
                 ]}
                 accessibilityRole="button"
               >
+                <HugeiconsIcon
+                  icon={Add01Icon}
+                  size={19}
+                  color={theme.colors.primaryLight}
+                />
                 <Text style={styles.addAnotherButtonText}>
-                  {"\uFF0B"} Add another note
+                  Add another note
                 </Text>
               </Pressable>
             )}
@@ -620,7 +677,11 @@ export default function HomeScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationCard}>
             <View style={styles.confirmationIcon}>
-              <Text style={styles.confirmationIconText}>{"\u26A0"}</Text>
+              <HugeiconsIcon
+                icon={Alert01Icon}
+                size={26}
+                color={theme.colors.status.error}
+              />
             </View>
 
             <Text style={styles.confirmationTitle}>Delete this note?</Text>
@@ -745,10 +806,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       alignItems: "center",
       justifyContent: "center",
     },
-    settingsIcon: {
-      color: theme.colors.textSecondary,
-      fontSize: 27,
-    },
     searchContainer: {
       height: 58,
       flexDirection: "row",
@@ -758,12 +815,8 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       paddingHorizontal: 18,
+      gap: 14,
       marginBottom: 38,
-    },
-    searchIcon: {
-      color: theme.colors.textMuted,
-      fontSize: 26,
-      marginRight: 14,
     },
     searchInput: {
       flex: 1,
@@ -772,11 +825,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       paddingVertical: 0,
       outlineStyle: "none",
     } as object,
-    clearSearch: {
-      color: theme.colors.textSecondary,
-      fontSize: 25,
-      paddingLeft: 10,
-    },
     section: {
       marginBottom: 36,
     },
@@ -872,19 +920,11 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       gap: 9,
       minWidth: 0,
     },
-    controlIcon: {
-      color: theme.colors.primaryLight,
-      fontSize: 19,
-    },
     controlButtonText: {
       color: theme.colors.textPrimary,
       fontSize: 13,
       fontWeight: "600",
       flexShrink: 1,
-    },
-    controlChevron: {
-      color: theme.colors.textMuted,
-      fontSize: 10,
     },
     dropdownMenu: {
       position: "absolute",
@@ -921,11 +961,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     },
     dropdownItemTextSelected: {
       color: theme.colors.primaryLight,
-      fontWeight: "700",
-    },
-    dropdownCheck: {
-      color: theme.colors.primaryLight,
-      fontSize: 16,
       fontWeight: "700",
     },
     loadingContainer: {
@@ -1062,11 +1097,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       paddingHorizontal: 24,
       gap: 10,
     },
-    createButtonIcon: {
-      color: theme.colors.textOnPrimary,
-      fontSize: 22,
-      fontWeight: "600",
-    },
     createButtonText: {
       color: theme.colors.textOnPrimary,
       fontSize: 14,
@@ -1094,8 +1124,10 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     },
     addAnotherButton: {
       minHeight: 52,
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      gap: 9,
       backgroundColor: theme.colors.surface,
       borderRadius: theme.radius.lg,
       borderWidth: 1,
@@ -1132,11 +1164,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 18,
-    },
-    confirmationIconText: {
-      color: theme.colors.status.error,
-      fontSize: 26,
-      fontWeight: "700",
     },
     confirmationTitle: {
       color: theme.colors.textPrimary,
