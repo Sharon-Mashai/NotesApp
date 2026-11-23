@@ -10,6 +10,13 @@ import {
   View,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import {
+  Add01Icon,
+  Alert01Icon,
+  ArrowLeft01Icon,
+  NotebookTextIcon,
+} from "@hugeicons/core-free-icons";
 
 import type { AppTheme } from "@/constants/theme";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -146,9 +153,14 @@ export default function WorkCategoryScreen() {
             ]}
             accessibilityRole="button"
           >
-            <Text style={styles.backButtonText}>
-              {"\u2190"} Back to dashboard
-            </Text>
+            <View style={styles.backButtonContent}>
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={18}
+                color={theme.colors.primaryLight}
+              />
+              <Text style={styles.backButtonText}>Back to dashboard</Text>
+            </View>
           </Pressable>
 
           <View style={styles.header}>
@@ -277,13 +289,20 @@ export default function WorkCategoryScreen() {
               </View>
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyIcon}>{"\u270E"}</Text>
+                <View style={styles.emptyIconContainer}>
+                  <HugeiconsIcon
+                    icon={NotebookTextIcon}
+                    size={46}
+                    color={theme.colors.categories.work}
+                  />
+                </View>
 
                 <Text style={styles.emptyTitle}>No Work notes yet</Text>
 
                 <Text style={styles.emptyDescription}>
-                  Work-related notes will appear here when you create them using
-                  the Work category.
+                  Your workspace is ready! Create your first Work note to keep
+                  your tasks, plans and work-related ideas organised in one
+                  place.
                 </Text>
 
                 <Pressable
@@ -294,9 +313,16 @@ export default function WorkCategoryScreen() {
                   ]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.createButtonText}>
-                    {"\uFF0B"} Create a work note
-                  </Text>
+                  <View style={styles.actionButtonContent}>
+                    <HugeiconsIcon
+                      icon={Add01Icon}
+                      size={19}
+                      color={theme.colors.textOnPrimary}
+                    />
+                    <Text style={styles.createButtonText}>
+                      Create a work note
+                    </Text>
+                  </View>
                 </Pressable>
               </View>
             )}
@@ -310,9 +336,16 @@ export default function WorkCategoryScreen() {
                 ]}
                 accessibilityRole="button"
               >
-                <Text style={styles.addAnotherButtonText}>
-                  {"\uFF0B"} Add another Work note
-                </Text>
+                <View style={styles.actionButtonContent}>
+                  <HugeiconsIcon
+                    icon={Add01Icon}
+                    size={19}
+                    color={theme.colors.primaryLight}
+                  />
+                  <Text style={styles.addAnotherButtonText}>
+                    Add another Work note
+                  </Text>
+                </View>
               </Pressable>
             )}
           </View>
@@ -328,7 +361,11 @@ export default function WorkCategoryScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationCard}>
             <View style={styles.confirmationIcon}>
-              <Text style={styles.confirmationIconText}>{"\u26A0"}</Text>
+              <HugeiconsIcon
+                icon={Alert01Icon}
+                size={26}
+                color={theme.colors.status.error}
+              />
             </View>
 
             <Text style={styles.confirmationTitle}>Delete this note?</Text>
@@ -407,6 +444,11 @@ function createStyles(theme: AppTheme) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       marginBottom: 28,
+    },
+    backButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
     backButtonText: {
       color: theme.colors.primaryLight,
@@ -609,17 +651,21 @@ function createStyles(theme: AppTheme) {
       borderColor: theme.colors.border,
       borderStyle: "dashed",
       paddingHorizontal: 24,
-      paddingVertical: 36,
+      paddingVertical: 40,
       marginTop: 8,
     },
-    emptyIcon: {
-      color: theme.colors.categories.work,
-      fontSize: 42,
-      marginBottom: 18,
+    emptyIconContainer: {
+      width: 84,
+      height: 84,
+      borderRadius: theme.radius.full,
+      backgroundColor: `${theme.colors.categories.work}18`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 22,
     },
     emptyTitle: {
       color: theme.colors.textPrimary,
-      fontSize: 19,
+      fontSize: 20,
       fontWeight: "700",
       textAlign: "center",
       marginBottom: 12,
@@ -639,6 +685,12 @@ function createStyles(theme: AppTheme) {
       backgroundColor: theme.colors.primary,
       borderRadius: theme.radius.lg,
       paddingHorizontal: 24,
+    },
+    actionButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 9,
     },
     createButtonText: {
       color: theme.colors.textOnPrimary,
@@ -685,11 +737,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 18,
-    },
-    confirmationIconText: {
-      color: theme.colors.status.error,
-      fontSize: 26,
-      fontWeight: "700",
     },
     confirmationTitle: {
       color: theme.colors.textPrimary,
