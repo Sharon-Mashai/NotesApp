@@ -1,13 +1,42 @@
-import { DarkTheme, Stack, ThemeProvider } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider as NavigationThemeProvider,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 
 export { ErrorBoundary } from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
+
+function RootNavigator() {
+  const { mode, theme } = useTheme();
+
+  const navigationTheme = mode === "dark" ? DarkTheme : DefaultTheme;
+
+  return (
+    <NavigationThemeProvider value={navigationTheme}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: theme.colors.background,
+          },
+        }}
+      >
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </NavigationThemeProvider>
+  );
+}
 
 export default function RootLayout() {
   useEffect(() => {
@@ -15,20 +44,9 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeProvider value={DarkTheme}>
+    <ThemeProvider>
       <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: "#111318",
-            },
-          }}
-        >
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <RootNavigator />
       </AuthProvider>
     </ThemeProvider>
   );

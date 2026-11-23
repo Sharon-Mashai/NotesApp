@@ -10,11 +10,15 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 
-import { theme } from "@/constants/theme";
+import { type AppTheme } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SettingsScreen() {
   const { logout } = useAuth();
+  const { mode, theme, setMode } = useTheme();
+
+  const styles = createStyles(theme);
 
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -83,13 +87,57 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.settingDetails}>
-              <Text style={styles.settingTitle}>Dark mode</Text>
+              <Text style={styles.settingTitle}>Appearance</Text>
               <Text style={styles.settingDescription}>
-                Your current app appearance
+                Choose your preferred app theme
               </Text>
             </View>
 
-            <Text style={styles.currentValue}>Active</Text>
+            <Text style={styles.currentValue}>
+              {mode === "dark" ? "Dark" : "Light"}
+            </Text>
+          </View>
+
+          <View style={styles.modeOptions}>
+            <Pressable
+              style={[
+                styles.modeButton,
+                mode === "light" && styles.modeButtonActive,
+              ]}
+              onPress={() => void setMode("light")}
+              accessibilityRole="button"
+              accessibilityLabel="Switch to light mode"
+              accessibilityState={{ selected: mode === "light" }}
+            >
+              <Text
+                style={[
+                  styles.modeButtonText,
+                  mode === "light" && styles.modeButtonTextActive,
+                ]}
+              >
+                {"\u2600"} Light
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[
+                styles.modeButton,
+                mode === "dark" && styles.modeButtonActive,
+              ]}
+              onPress={() => void setMode("dark")}
+              accessibilityRole="button"
+              accessibilityLabel="Switch to dark mode"
+              accessibilityState={{ selected: mode === "dark" }}
+            >
+              <Text
+                style={[
+                  styles.modeButtonText,
+                  mode === "dark" && styles.modeButtonTextActive,
+                ]}
+              >
+                {"\u263E"} Dark
+              </Text>
+            </Pressable>
           </View>
         </View>
 
@@ -220,189 +268,218 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    width: "100%",
-    maxWidth: 900,
-    alignSelf: "center",
-    paddingHorizontal: theme.spacing.xl,
-    paddingTop: 56,
-    paddingBottom: 48,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.xxxl,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  backIcon: {
-    color: theme.colors.textPrimary,
-    fontSize: 34,
-    lineHeight: 38,
-  },
-  title: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.xxl,
-    fontWeight: "700",
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.sm,
-    marginTop: 4,
-  },
-  section: {
-    marginBottom: theme.spacing.xxl,
-  },
-  sectionTitle: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.sizes.xs,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginBottom: theme.spacing.md,
-    marginLeft: 4,
-  },
-  settingCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.lg,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-  },
-  settingIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.surfaceElevated,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconText: {
-    color: theme.colors.primaryLight,
-    fontSize: 23,
-  },
-  settingDetails: {
-    flex: 1,
-  },
-  settingTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.md,
-    fontWeight: "600",
-  },
-  settingDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.xs,
-    marginTop: 4,
-  },
-  currentValue: {
-    color: theme.colors.primaryLight,
-    fontSize: theme.typography.sizes.xs,
-    fontWeight: "600",
-  },
-  arrow: {
-    color: theme.colors.textSecondary,
-    fontSize: 27,
-  },
-  signOutCard: {
-    borderColor: "rgba(248, 113, 113, 0.25)",
-  },
-  signOutText: {
-    color: theme.colors.status.error,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: theme.colors.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: theme.spacing.xl,
-  },
-  modalCard: {
-    width: "100%",
-    maxWidth: 400,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.xxl,
-    alignItems: "center",
-  },
-  modalIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: theme.radius.full,
-    backgroundColor: "rgba(248, 113, 113, 0.12)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: theme.spacing.lg,
-  },
-  modalIconText: {
-    color: theme.colors.status.error,
-    fontSize: 30,
-  },
-  modalTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: "700",
-    marginBottom: theme.spacing.sm,
-  },
-  modalMessage: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.sm,
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: theme.spacing.xl,
-  },
-  errorText: {
-    color: theme.colors.status.error,
-    fontSize: theme.typography.sizes.sm,
-    textAlign: "center",
-    marginBottom: theme.spacing.md,
-  },
-  modalActions: {
-    flexDirection: "row",
-    width: "100%",
-    gap: theme.spacing.md,
-  },
-  cancelButton: {
-    flex: 1,
-    minHeight: 46,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.surfaceElevated,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cancelButtonText: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: "600",
-  },
-  confirmButton: {
-    flex: 1,
-    minHeight: 46,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.status.error,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  confirmButtonText: {
-    color: theme.colors.white,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: "600",
-  },
-});
+function createStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    content: {
+      width: "100%",
+      maxWidth: 900,
+      alignSelf: "center",
+      paddingHorizontal: theme.spacing.xl,
+      paddingTop: 56,
+      paddingBottom: 48,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.xxxl,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    backIcon: {
+      color: theme.colors.textPrimary,
+      fontSize: 34,
+      lineHeight: 38,
+    },
+    title: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.xxl,
+      fontWeight: "700",
+    },
+    subtitle: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      marginTop: 4,
+    },
+    section: {
+      marginBottom: theme.spacing.xxl,
+    },
+    sectionTitle: {
+      color: theme.colors.textMuted,
+      fontSize: theme.typography.sizes.xs,
+      fontWeight: "700",
+      letterSpacing: 1.2,
+      marginBottom: theme.spacing.md,
+      marginLeft: 4,
+    },
+    settingCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.md,
+    },
+    settingIcon: {
+      width: 42,
+      height: 42,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.surfaceElevated,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    iconText: {
+      color: theme.colors.primaryLight,
+      fontSize: 23,
+    },
+    settingDetails: {
+      flex: 1,
+    },
+    settingTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.md,
+      fontWeight: "600",
+    },
+    settingDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.xs,
+      marginTop: 4,
+    },
+    currentValue: {
+      color: theme.colors.primaryLight,
+      fontSize: theme.typography.sizes.xs,
+      fontWeight: "600",
+    },
+    modeOptions: {
+      flexDirection: "row",
+      gap: theme.spacing.md,
+      marginTop: theme.spacing.md,
+    },
+    modeButton: {
+      flex: 1,
+      minHeight: 46,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    modeButtonActive: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    modeButtonText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: "600",
+    },
+    modeButtonTextActive: {
+      color: theme.colors.textOnPrimary,
+    },
+    arrow: {
+      color: theme.colors.textSecondary,
+      fontSize: 27,
+    },
+    signOutCard: {
+      borderColor: "rgba(248, 113, 113, 0.25)",
+    },
+    signOutText: {
+      color: theme.colors.status.error,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: theme.colors.overlay,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: theme.spacing.xl,
+    },
+    modalCard: {
+      width: "100%",
+      maxWidth: 400,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: theme.spacing.xxl,
+      alignItems: "center",
+    },
+    modalIcon: {
+      width: 58,
+      height: 58,
+      borderRadius: theme.radius.full,
+      backgroundColor: "rgba(248, 113, 113, 0.12)",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: theme.spacing.lg,
+    },
+    modalIconText: {
+      color: theme.colors.status.error,
+      fontSize: 30,
+    },
+    modalTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.xl,
+      fontWeight: "700",
+      marginBottom: theme.spacing.sm,
+    },
+    modalMessage: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      textAlign: "center",
+      lineHeight: 22,
+      marginBottom: theme.spacing.xl,
+    },
+    errorText: {
+      color: theme.colors.status.error,
+      fontSize: theme.typography.sizes.sm,
+      textAlign: "center",
+      marginBottom: theme.spacing.md,
+    },
+    modalActions: {
+      flexDirection: "row",
+      width: "100%",
+      gap: theme.spacing.md,
+    },
+    cancelButton: {
+      flex: 1,
+      minHeight: 46,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.surfaceElevated,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cancelButtonText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: "600",
+    },
+    confirmButton: {
+      flex: 1,
+      minHeight: 46,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.status.error,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    confirmButtonText: {
+      color: theme.colors.white,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: "600",
+    },
+  });
+}
