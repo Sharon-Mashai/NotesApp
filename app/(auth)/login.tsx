@@ -12,7 +12,11 @@ import {
 } from "react-native";
 import { Link, router } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
+import {
+  Notebook01Icon,
+  ViewIcon,
+  ViewOffIcon,
+} from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -68,7 +72,11 @@ export default function LoginScreen() {
       >
         <View style={styles.container}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>N.</Text>
+            <HugeiconsIcon
+              icon={Notebook01Icon}
+              size={32}
+              color={theme.colors.textOnPrimary}
+            />
           </View>
 
           <Text style={styles.heading}>Welcome back</Text>
@@ -196,11 +204,6 @@ function createStyles(theme: AppTheme) {
       justifyContent: "center",
       alignSelf: "center",
       marginBottom: 28,
-    },
-    logo: {
-      color: theme.colors.textOnPrimary,
-      fontSize: 27,
-      fontWeight: "800",
     },
     heading: {
       color: theme.colors.textPrimary,
