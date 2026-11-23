@@ -12,6 +12,15 @@ import {
   View,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import {
+  Add01Icon,
+  ArrowLeft01Icon,
+  BookOpenTextIcon,
+  Briefcase01Icon,
+  CheckIcon,
+  ProfileIcon,
+} from "@hugeicons/core-free-icons";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import type { AppTheme } from "@/constants/theme";
@@ -19,6 +28,17 @@ import { createNote, getNotes, updateNote } from "@/services/notes";
 import type { NoteCategory } from "@/types/note";
 
 const categories: NoteCategory[] = ["Work", "Study", "Personal"];
+
+function getCategoryIcon(category: NoteCategory) {
+  switch (category) {
+    case "Work":
+      return Briefcase01Icon;
+    case "Study":
+      return BookOpenTextIcon;
+    case "Personal":
+      return ProfileIcon;
+  }
+}
 
 function getCategoryRoute(category?: NoteCategory) {
   if (category === "Work") {
@@ -214,7 +234,14 @@ export default function CreateNoteScreen() {
               style={styles.cancelButton}
               accessibilityRole="button"
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <View style={styles.cancelButtonContent}>
+                <HugeiconsIcon
+                  icon={ArrowLeft01Icon}
+                  size={17}
+                  color={theme.colors.textSecondary}
+                />
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </View>
             </Pressable>
           </View>
 
@@ -260,6 +287,7 @@ export default function CreateNoteScreen() {
               <View style={styles.categoryList}>
                 {categories.map((categoryOption) => {
                   const isSelected = selectedCategory === categoryOption;
+                  const CategoryIcon = getCategoryIcon(categoryOption);
 
                   return (
                     <Pressable
@@ -272,14 +300,34 @@ export default function CreateNoteScreen() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: isSelected }}
                     >
-                      <Text
-                        style={[
-                          styles.categoryButtonText,
-                          isSelected && styles.categoryButtonTextSelected,
-                        ]}
-                      >
-                        {categoryOption}
-                      </Text>
+                      <View style={styles.categoryButtonContent}>
+                        <HugeiconsIcon
+                          icon={CategoryIcon}
+                          size={18}
+                          color={
+                            isSelected
+                              ? theme.colors.textOnPrimary
+                              : theme.colors.textSecondary
+                          }
+                        />
+
+                        <Text
+                          style={[
+                            styles.categoryButtonText,
+                            isSelected && styles.categoryButtonTextSelected,
+                          ]}
+                        >
+                          {categoryOption}
+                        </Text>
+
+                        {isSelected && (
+                          <HugeiconsIcon
+                            icon={CheckIcon}
+                            size={16}
+                            color={theme.colors.textOnPrimary}
+                          />
+                        )}
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -290,7 +338,16 @@ export default function CreateNoteScreen() {
           {(presetCategory || noteId) && (
             <View style={styles.lockedCategory}>
               <Text style={styles.lockedCategoryLabel}>SAVING UNDER</Text>
-              <Text style={styles.lockedCategoryText}>{selectedCategory}</Text>
+              <View style={styles.lockedCategoryContent}>
+                <HugeiconsIcon
+                  icon={getCategoryIcon(selectedCategory)}
+                  size={19}
+                  color={theme.colors.primaryLight}
+                />
+                <Text style={styles.lockedCategoryText}>
+                  {selectedCategory}
+                </Text>
+              </View>
             </View>
           )}
 
@@ -307,9 +364,16 @@ export default function CreateNoteScreen() {
             {isSaving ? (
               <ActivityIndicator color={theme.colors.textOnPrimary} />
             ) : (
-              <Text style={styles.saveButtonText}>
-                {noteId ? "Update note" : "Save note"}
-              </Text>
+              <View style={styles.saveButtonContent}>
+                <HugeiconsIcon
+                  icon={noteId ? CheckIcon : Add01Icon}
+                  size={19}
+                  color={theme.colors.textOnPrimary}
+                />
+                <Text style={styles.saveButtonText}>
+                  {noteId ? "Update note" : "Save note"}
+                </Text>
+              </View>
             )}
           </Pressable>
         </View>
@@ -383,6 +447,11 @@ function createStyles(theme: AppTheme) {
       borderWidth: 1,
       borderColor: theme.colors.border,
     },
+    cancelButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+    },
     cancelButtonText: {
       color: theme.colors.textSecondary,
       fontSize: 14,
@@ -435,7 +504,7 @@ function createStyles(theme: AppTheme) {
       gap: 10,
     },
     categoryButton: {
-      paddingHorizontal: 22,
+      paddingHorizontal: 16,
       paddingVertical: 13,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.surface,
@@ -445,6 +514,11 @@ function createStyles(theme: AppTheme) {
     categoryButtonSelected: {
       backgroundColor: theme.colors.primary,
       borderColor: theme.colors.primary,
+    },
+    categoryButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
     categoryButtonText: {
       color: theme.colors.textSecondary,
@@ -469,6 +543,11 @@ function createStyles(theme: AppTheme) {
       letterSpacing: 1.2,
       marginBottom: 7,
     },
+    lockedCategoryContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+    },
     lockedCategoryText: {
       color: theme.colors.primaryLight,
       fontSize: 15,
@@ -481,6 +560,11 @@ function createStyles(theme: AppTheme) {
       backgroundColor: theme.colors.primary,
       borderRadius: theme.radius.lg,
       marginTop: 8,
+    },
+    saveButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
     },
     saveButtonText: {
       color: theme.colors.textOnPrimary,
