@@ -2,10 +2,14 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Redirect, Slot } from "expo-router";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { theme } from "@/constants/theme";
+import { useTheme } from "@/contexts/ThemeContext";
+import type { AppTheme } from "@/constants/theme";
 
 export default function ProtectedLayout() {
   const { user, isLoading } = useAuth();
+  const { theme } = useTheme();
+
+  const styles = createStyles(theme);
 
   if (isLoading) {
     return (
@@ -22,11 +26,13 @@ export default function ProtectedLayout() {
   return <Slot />;
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function createStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  });
+}
