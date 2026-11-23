@@ -14,10 +14,13 @@ import {
 import { router } from "expo-router";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { theme } from "@/constants/theme";
+import { useTheme } from "@/contexts/ThemeContext";
+import type { AppTheme } from "@/constants/theme";
 
 export default function ProfileScreen() {
   const { user, updateProfile, changePassword, logout } = useAuth();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [username, setUsername] = useState(user?.username ?? "");
@@ -427,285 +430,287 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xxl,
-  },
-  container: {
-    width: "100%",
-    maxWidth: 900,
-    alignSelf: "center",
-    gap: theme.spacing.xl,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: theme.spacing.sm,
-    paddingRight: theme.spacing.md,
-  },
-  backButtonText: {
-    color: theme.colors.primaryLight,
-    fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
-  },
-  headingContainer: {
-    gap: theme.spacing.xs,
-  },
-  eyebrow: {
-    color: theme.colors.primary,
-    fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
-    letterSpacing: 1.5,
-  },
-  heading: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.display,
-    fontWeight: theme.typography.weights.bold,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.md,
-  },
-  profileCard: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: theme.radius.xl,
-    padding: theme.spacing.xxl,
-    gap: theme.spacing.sm,
-  },
-  avatar: {
-    width: 76,
-    height: 76,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: theme.spacing.sm,
-  },
-  avatarText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.bold,
-  },
-  displayName: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
-    textAlign: "center",
-  },
-  displayUsername: {
-    color: theme.colors.primaryLight,
-    fontSize: theme.typography.sizes.sm,
-    textAlign: "center",
-  },
-  displayEmail: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.sm,
-    textAlign: "center",
-  },
-  formCard: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: theme.radius.xl,
-    padding: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-  },
-  sectionTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
-  },
-  sectionDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.sm,
-    marginTop: -theme.spacing.md,
-    lineHeight: 20,
-  },
-  fieldGroup: {
-    gap: theme.spacing.sm,
-  },
-  label: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
-  },
-  input: {
-    backgroundColor: theme.colors.background,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: theme.radius.md,
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-  },
-  fieldHint: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.sizes.xs,
-  },
-  readOnlyInput: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
-    opacity: 0.8,
-  },
-  readOnlyEmail: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.md,
-    flexShrink: 1,
-  },
-  readOnlyLabel: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.sizes.xs,
-  },
-  feedbackContainer: {
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
-  },
-  errorFeedback: {
-    backgroundColor: "rgba(248, 113, 113, 0.12)",
-  },
-  successFeedback: {
-    backgroundColor: "rgba(52, 211, 153, 0.12)",
-  },
-  feedbackText: {
-    fontSize: theme.typography.sizes.sm,
-  },
-  errorText: {
-    color: theme.colors.status.error,
-  },
-  successText: {
-    color: theme.colors.status.success,
-  },
-  saveButton: {
-    minHeight: 50,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: theme.spacing.lg,
-    marginTop: theme.spacing.sm,
-  },
-  saveButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  signOutCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: theme.spacing.lg,
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: theme.radius.xl,
-    padding: theme.spacing.xl,
-  },
-  signOutTextContainer: {
-    flex: 1,
-    minWidth: 180,
-    gap: theme.spacing.xs,
-  },
-  signOutTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
-  },
-  signOutDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.sm,
-    lineHeight: 20,
-  },
-  signOutButton: {
-    borderColor: theme.colors.status.error,
-    borderWidth: 1,
-    borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  signOutButtonText: {
-    color: theme.colors.status.error,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: theme.colors.overlay,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: theme.spacing.xl,
-  },
-  modalCard: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: theme.colors.surfaceElevated,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: theme.radius.xl,
-    padding: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-  },
-  modalTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
-  },
-  modalDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.md,
-    lineHeight: 22,
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-    gap: theme.spacing.md,
-    marginTop: theme.spacing.sm,
-  },
-  cancelButton: {
-    minWidth: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  cancelButtonText: {
-    color: theme.colors.textPrimary,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
-  },
-  confirmSignOutButton: {
-    minWidth: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.status.error,
-    borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  confirmSignOutText: {
-    color: theme.colors.white,
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+function createStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.xxl,
+    },
+    container: {
+      width: "100%",
+      maxWidth: 900,
+      alignSelf: "center",
+      gap: theme.spacing.xl,
+    },
+    backButton: {
+      alignSelf: "flex-start",
+      paddingVertical: theme.spacing.sm,
+      paddingRight: theme.spacing.md,
+    },
+    backButtonText: {
+      color: theme.colors.primaryLight,
+      fontSize: theme.typography.sizes.md,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    headingContainer: {
+      gap: theme.spacing.xs,
+    },
+    eyebrow: {
+      color: theme.colors.primary,
+      fontSize: theme.typography.sizes.xs,
+      fontWeight: theme.typography.weights.bold,
+      letterSpacing: 1.5,
+    },
+    heading: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.display,
+      fontWeight: theme.typography.weights.bold,
+    },
+    subtitle: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.md,
+    },
+    profileCard: {
+      alignItems: "center",
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.xl,
+      padding: theme.spacing.xxl,
+      gap: theme.spacing.sm,
+    },
+    avatar: {
+      width: 76,
+      height: 76,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: theme.spacing.sm,
+    },
+    avatarText: {
+      color: theme.colors.textOnPrimary,
+      fontSize: theme.typography.sizes.xxl,
+      fontWeight: theme.typography.weights.bold,
+    },
+    displayName: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.xl,
+      fontWeight: theme.typography.weights.bold,
+      textAlign: "center",
+    },
+    displayUsername: {
+      color: theme.colors.primaryLight,
+      fontSize: theme.typography.sizes.sm,
+      textAlign: "center",
+    },
+    displayEmail: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      textAlign: "center",
+    },
+    formCard: {
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.xl,
+      padding: theme.spacing.xxl,
+      gap: theme.spacing.lg,
+    },
+    sectionTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.xl,
+      fontWeight: theme.typography.weights.bold,
+    },
+    sectionDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      marginTop: -theme.spacing.md,
+      lineHeight: 20,
+    },
+    fieldGroup: {
+      gap: theme.spacing.sm,
+    },
+    label: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    input: {
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.md,
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.lg,
+    },
+    fieldHint: {
+      color: theme.colors.textMuted,
+      fontSize: theme.typography.sizes.xs,
+    },
+    readOnlyInput: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: theme.spacing.sm,
+      opacity: 0.8,
+    },
+    readOnlyEmail: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.md,
+      flexShrink: 1,
+    },
+    readOnlyLabel: {
+      color: theme.colors.textMuted,
+      fontSize: theme.typography.sizes.xs,
+    },
+    feedbackContainer: {
+      borderRadius: theme.radius.md,
+      padding: theme.spacing.md,
+    },
+    errorFeedback: {
+      backgroundColor: "rgba(248, 113, 113, 0.12)",
+    },
+    successFeedback: {
+      backgroundColor: "rgba(52, 211, 153, 0.12)",
+    },
+    feedbackText: {
+      fontSize: theme.typography.sizes.sm,
+    },
+    errorText: {
+      color: theme.colors.status.error,
+    },
+    successText: {
+      color: theme.colors.status.success,
+    },
+    saveButton: {
+      minHeight: 50,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+      marginTop: theme.spacing.sm,
+    },
+    saveButtonText: {
+      color: theme.colors.textOnPrimary,
+      fontSize: theme.typography.sizes.md,
+      fontWeight: theme.typography.weights.bold,
+    },
+    disabledButton: {
+      opacity: 0.6,
+    },
+    signOutCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: theme.spacing.lg,
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.xl,
+      padding: theme.spacing.xl,
+    },
+    signOutTextContainer: {
+      flex: 1,
+      minWidth: 180,
+      gap: theme.spacing.xs,
+    },
+    signOutTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.md,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    signOutDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      lineHeight: 20,
+    },
+    signOutButton: {
+      borderColor: theme.colors.status.error,
+      borderWidth: 1,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+    },
+    signOutButtonText: {
+      color: theme.colors.status.error,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: theme.colors.overlay,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: theme.spacing.xl,
+    },
+    modalCard: {
+      width: "100%",
+      maxWidth: 420,
+      backgroundColor: theme.colors.surfaceElevated,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.xl,
+      padding: theme.spacing.xxl,
+      gap: theme.spacing.lg,
+    },
+    modalTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.xl,
+      fontWeight: theme.typography.weights.bold,
+    },
+    modalDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.md,
+      lineHeight: 22,
+    },
+    modalActions: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      flexWrap: "wrap",
+      gap: theme.spacing.md,
+      marginTop: theme.spacing.sm,
+    },
+    cancelButton: {
+      minWidth: 100,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surfaceMuted,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+    },
+    cancelButtonText: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    confirmSignOutButton: {
+      minWidth: 100,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.status.error,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+    },
+    confirmSignOutText: {
+      color: theme.colors.white,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: theme.typography.weights.bold,
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });
+}
