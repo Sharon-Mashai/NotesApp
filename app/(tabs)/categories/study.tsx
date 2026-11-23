@@ -11,6 +11,14 @@ import {
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import {
+  Add01Icon,
+  Alert01Icon,
+  ArrowLeft01Icon,
+  BookOpenTextIcon,
+} from "@hugeicons/core-free-icons";
+
 import type { AppTheme } from "@/constants/theme";
 import { useTheme } from "@/contexts/ThemeContext";
 import { deleteNote, getNotes } from "@/services/notes";
@@ -143,9 +151,14 @@ export default function StudyCategoryScreen() {
             ]}
             accessibilityRole="button"
           >
-            <Text style={styles.backButtonText}>
-              {"\u2190"} Back to dashboard
-            </Text>
+            <View style={styles.backButtonContent}>
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={18}
+                color={theme.colors.primaryLight}
+              />
+              <Text style={styles.backButtonText}>Back to dashboard</Text>
+            </View>
           </Pressable>
 
           <View style={styles.header}>
@@ -274,13 +287,20 @@ export default function StudyCategoryScreen() {
               </View>
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyIcon}>{"\u270E"}</Text>
+                <View style={styles.emptyIconContainer}>
+                  <HugeiconsIcon
+                    icon={BookOpenTextIcon}
+                    size={46}
+                    color={theme.colors.categories.study}
+                  />
+                </View>
 
                 <Text style={styles.emptyTitle}>No Study notes yet</Text>
 
                 <Text style={styles.emptyDescription}>
-                  Your lessons, revision notes and learning ideas will appear
-                  here when you create them using the Study category.
+                  Your learning space is ready! Create your first Study note to
+                  keep your lessons, revision notes and learning ideas organised
+                  in one place.
                 </Text>
 
                 <Pressable
@@ -291,9 +311,16 @@ export default function StudyCategoryScreen() {
                   ]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.createButtonText}>
-                    {"\uFF0B"} Create a study note
-                  </Text>
+                  <View style={styles.actionButtonContent}>
+                    <HugeiconsIcon
+                      icon={Add01Icon}
+                      size={19}
+                      color={theme.colors.textOnPrimary}
+                    />
+                    <Text style={styles.createButtonText}>
+                      Create a study note
+                    </Text>
+                  </View>
                 </Pressable>
               </View>
             )}
@@ -307,9 +334,16 @@ export default function StudyCategoryScreen() {
                 ]}
                 accessibilityRole="button"
               >
-                <Text style={styles.addAnotherButtonText}>
-                  {"\uFF0B"} Add another Study note
-                </Text>
+                <View style={styles.actionButtonContent}>
+                  <HugeiconsIcon
+                    icon={Add01Icon}
+                    size={19}
+                    color={theme.colors.primaryLight}
+                  />
+                  <Text style={styles.addAnotherButtonText}>
+                    Add another Study note
+                  </Text>
+                </View>
               </Pressable>
             )}
           </View>
@@ -325,7 +359,11 @@ export default function StudyCategoryScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationCard}>
             <View style={styles.confirmationIcon}>
-              <Text style={styles.confirmationIconText}>{"\u26A0"}</Text>
+              <HugeiconsIcon
+                icon={Alert01Icon}
+                size={27}
+                color={theme.colors.status.error}
+              />
             </View>
 
             <Text style={styles.confirmationTitle}>Delete this note?</Text>
@@ -404,6 +442,11 @@ function createStyles(theme: AppTheme) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       marginBottom: 28,
+    },
+    backButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
     backButtonText: {
       color: theme.colors.primaryLight,
@@ -609,10 +652,14 @@ function createStyles(theme: AppTheme) {
       paddingVertical: 36,
       marginTop: 8,
     },
-    emptyIcon: {
-      color: theme.colors.categories.study,
-      fontSize: 42,
-      marginBottom: 18,
+    emptyIconContainer: {
+      width: 84,
+      height: 84,
+      borderRadius: theme.radius.full,
+      backgroundColor: `${theme.colors.categories.study}18`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 20,
     },
     emptyTitle: {
       color: theme.colors.textPrimary,
@@ -657,6 +704,12 @@ function createStyles(theme: AppTheme) {
       fontSize: 14,
       fontWeight: "700",
     },
+    actionButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 9,
+    },
     modalOverlay: {
       flex: 1,
       backgroundColor: theme.colors.overlay,
@@ -682,11 +735,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 18,
-    },
-    confirmationIconText: {
-      color: theme.colors.status.error,
-      fontSize: 26,
-      fontWeight: "700",
     },
     confirmationTitle: {
       color: theme.colors.textPrimary,
