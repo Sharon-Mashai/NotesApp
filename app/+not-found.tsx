@@ -1,5 +1,7 @@
 import { Link, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { AiSparklesIcon } from "@hugeicons/core-free-icons";
 
 import type { AppTheme } from "@/constants/theme";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -14,7 +16,11 @@ export default function NotFoundScreen() {
 
       <View style={styles.container}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>✦</Text>
+          <HugeiconsIcon
+            icon={AiSparklesIcon}
+            size={34}
+            color={theme.colors.primary}
+          />
         </View>
 
         <Text style={styles.title}>Lost your way?</Text>
@@ -49,10 +55,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: theme.spacing.xl,
-    },
-    icon: {
-      color: theme.colors.primary,
-      fontSize: 34,
     },
     title: {
       color: theme.colors.textPrimary,
