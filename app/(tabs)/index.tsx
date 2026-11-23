@@ -13,8 +13,9 @@ import {
   View,
 } from "react-native";
 
-import { theme } from "@/constants/theme";
+import { type AppTheme, type ThemeMode } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
 import {
@@ -37,7 +38,7 @@ const sortOptions: { label: string; value: NoteSortOrder }[] = [
   { label: "Name", value: "name" },
 ];
 
-function getCategoryColor(category: NoteCategory) {
+function getCategoryColor(category: NoteCategory, theme: AppTheme) {
   switch (category) {
     case "Work":
       return theme.colors.categories.work;
@@ -71,6 +72,9 @@ function getCategoryName(value: string): NoteCategory | undefined {
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const { theme, mode } = useTheme();
+
+  const styles = createStyles(theme, mode);
 
   const username = user?.username?.trim() || "there";
   const profileInitial = username.charAt(0).toUpperCase() || "U";
@@ -170,9 +174,9 @@ export default function HomeScreen() {
     });
   };
 
- const handleSettings = () => {
-  router.push("/settings");
-};
+  const handleSettings = () => {
+    router.push("/settings");
+  };
 
   const handleDeleteRequest = (note: Note) => {
     setNoteToDelete(note);
@@ -235,7 +239,7 @@ export default function HomeScreen() {
     sortOptions.find((option) => option.value === sortOrder)?.label ?? "Date";
 
   const renderNoteCard = (note: Note) => {
-    const categoryColor = getCategoryColor(note.category);
+    const categoryColor = getCategoryColor(note.category, theme);
 
     return (
       <View key={note.id} style={styles.noteCard}>
@@ -669,525 +673,527 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    paddingBottom: 40,
-  },
-  content: {
-    width: "100%",
-    maxWidth: 900,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 28,
-  },
-  headerText: {
-    flex: 1,
-  },
-  greeting: {
-    color: theme.colors.primary,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.5,
-    marginBottom: 10,
-  },
-  title: {
-    color: theme.colors.textPrimary,
-    fontSize: 27,
-    fontWeight: "700",
-    marginBottom: 7,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-  },
-  headerActions: {
-    alignItems: "center",
-    gap: 8,
-  },
-  profileButton: {
-    width: 46,
-    height: 46,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  profileInitial: {
-    color: theme.colors.primaryLight,
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  settingsButton: {
-    width: 46,
-    height: 46,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  settingsIcon: {
-    color: theme.colors.textSecondary,
-    fontSize: 27,
-  },
-  searchContainer: {
-    height: 58,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    paddingHorizontal: 18,
-    marginBottom: 38,
-  },
-  searchIcon: {
-    color: theme.colors.textMuted,
-    fontSize: 26,
-    marginRight: 14,
-  },
-  searchInput: {
-    flex: 1,
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-    paddingVertical: 0,
-    outlineStyle: "none",
-  } as object,
-  clearSearch: {
-    color: theme.colors.textSecondary,
-    fontSize: 25,
-    paddingLeft: 10,
-  },
-  section: {
-    marginBottom: 36,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 18,
-  },
-  sectionTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 19,
-    fontWeight: "700",
-  },
-  categoryList: {
-    gap: 10,
-    paddingRight: 8,
-  },
-  categoryChip: {
-    paddingHorizontal: 20,
-    paddingVertical: 13,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  categoryChipSelected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  categoryText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  categoryTextSelected: {
-    color: theme.colors.textOnPrimary,
-  },
-  notesSection: {
-    flex: 1,
-  },
-  notesSubtitle: {
-    color: theme.colors.textMuted,
-    fontSize: 13,
-    marginTop: 6,
-  },
-  noteCount: {
-    color: theme.colors.textMuted,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  controlsContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 22,
-    zIndex: 5,
-  },
-  controlColumn: {
-    flex: 1,
-    minWidth: 0,
-    position: "relative",
-    zIndex: 5,
-  },
-  controlLabel: {
-    color: theme.colors.textMuted,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.1,
-    marginBottom: 9,
-  },
-  controlButton: {
-    minHeight: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: 13,
-    gap: 8,
-  },
-  controlButtonActive: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.surfaceElevated,
-  },
-  controlButtonLeft: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-    minWidth: 0,
-  },
-  controlIcon: {
-    color: theme.colors.primaryLight,
-    fontSize: 19,
-  },
-  controlButtonText: {
-    color: theme.colors.textPrimary,
-    fontSize: 13,
-    fontWeight: "600",
-    flexShrink: 1,
-  },
-  controlChevron: {
-    color: theme.colors.textMuted,
-    fontSize: 10,
-  },
-  dropdownMenu: {
-    position: "absolute",
-    top: 80,
-    left: 0,
-    right: 0,
-    backgroundColor: theme.colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.lg,
-    padding: 6,
-    zIndex: 20,
-    elevation: 8,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-  },
-  dropdownItem: {
-    minHeight: 43,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    borderRadius: theme.radius.md,
-  },
-  dropdownItemSelected: {
-    backgroundColor: `${theme.colors.primary}20`,
-  },
-  dropdownItemText: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  dropdownItemTextSelected: {
-    color: theme.colors.primaryLight,
-    fontWeight: "700",
-  },
-  dropdownCheck: {
-    color: theme.colors.primaryLight,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  loadingContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 60,
-    gap: 14,
-  },
-  loadingText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-  },
-  notesList: {
-    gap: 14,
-  },
-  noteCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: 20,
-  },
-  noteCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-    gap: 12,
-  },
-  noteCategory: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-  },
-  categoryDot: {
-    width: 7,
-    height: 7,
-    borderRadius: theme.radius.full,
-  },
-  noteCategoryText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  noteDate: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-  },
-  noteTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 17,
-    fontWeight: "700",
-    marginBottom: 9,
-  },
-  noteContent: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  noteActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    gap: 10,
-    marginTop: 18,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.divider,
-  },
-  editButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: theme.radius.md,
-    backgroundColor: `${theme.colors.primary}20`,
-  },
-  editButtonText: {
-    color: theme.colors.primaryLight,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  deleteButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: theme.radius.md,
-    backgroundColor: `${theme.colors.status.error}18`,
-  },
-  deleteButtonText: {
-    color: theme.colors.status.error,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderStyle: "dashed",
-    paddingHorizontal: 24,
-    paddingVertical: 36,
-    marginTop: 8,
-  },
-  emptyIllustration: {
-    width: 280,
-    height: 190,
-    maxWidth: "100%",
-    marginBottom: 20,
-  },
-  emptyTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 19,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  emptyDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-    textAlign: "center",
-    maxWidth: 380,
-    marginBottom: 28,
-  },
-  createButton: {
-    minHeight: 54,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: 24,
-    gap: 10,
-  },
-  createButtonIcon: {
-    color: theme.colors.textOnPrimary,
-    fontSize: 22,
-    fontWeight: "600",
-  },
-  createButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  noResults: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: 32,
-  },
-  noResultsTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 17,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  noResultsDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-    textAlign: "center",
-  },
-  addAnotherButton: {
-    minHeight: 52,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginTop: 20,
-  },
-  addAnotherButtonText: {
-    color: theme.colors.primaryLight,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: theme.colors.overlay,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  confirmationCard: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: theme.colors.surfaceElevated,
-    borderRadius: theme.radius.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: 24,
-    alignItems: "center",
-  },
-  confirmationIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: theme.radius.full,
-    backgroundColor: `${theme.colors.status.error}20`,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 18,
-  },
-  confirmationIconText: {
-    color: theme.colors.status.error,
-    fontSize: 26,
-    fontWeight: "700",
-  },
-  confirmationTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  confirmationDescription: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  confirmationNoteTitle: {
-    color: theme.colors.textPrimary,
-    fontWeight: "700",
-  },
-  confirmationActions: {
-    width: "100%",
-    flexDirection: "row",
-    gap: 12,
-  },
-  cancelDeleteButton: {
-    flex: 1,
-    minHeight: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  cancelDeleteButtonText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  confirmDeleteButton: {
-    flex: 1,
-    minHeight: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.status.error,
-    borderRadius: theme.radius.md,
-  },
-  confirmDeleteButtonText: {
-    color: theme.colors.white,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-});
+function createStyles(theme: AppTheme, mode: ThemeMode) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      alignItems: "center",
+      paddingHorizontal: 20,
+      paddingTop: 28,
+      paddingBottom: 40,
+    },
+    content: {
+      width: "100%",
+      maxWidth: 900,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 28,
+    },
+    headerText: {
+      flex: 1,
+    },
+    greeting: {
+      color: theme.colors.primary,
+      fontSize: 11,
+      fontWeight: "700",
+      letterSpacing: 1.5,
+      marginBottom: 10,
+    },
+    title: {
+      color: theme.colors.textPrimary,
+      fontSize: 27,
+      fontWeight: "700",
+      marginBottom: 7,
+    },
+    subtitle: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+    },
+    headerActions: {
+      alignItems: "center",
+      gap: 8,
+    },
+    profileButton: {
+      width: 46,
+      height: 46,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surfaceElevated,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    profileInitial: {
+      color: theme.colors.primaryLight,
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    settingsButton: {
+      width: 46,
+      height: 46,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    settingsIcon: {
+      color: theme.colors.textSecondary,
+      fontSize: 27,
+    },
+    searchContainer: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      paddingHorizontal: 18,
+      marginBottom: 38,
+    },
+    searchIcon: {
+      color: theme.colors.textMuted,
+      fontSize: 26,
+      marginRight: 14,
+    },
+    searchInput: {
+      flex: 1,
+      color: theme.colors.textPrimary,
+      fontSize: 15,
+      paddingVertical: 0,
+      outlineStyle: "none",
+    } as object,
+    clearSearch: {
+      color: theme.colors.textSecondary,
+      fontSize: 25,
+      paddingLeft: 10,
+    },
+    section: {
+      marginBottom: 36,
+    },
+    sectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 18,
+    },
+    sectionTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: 19,
+      fontWeight: "700",
+    },
+    categoryList: {
+      gap: 10,
+      paddingRight: 8,
+    },
+    categoryChip: {
+      paddingHorizontal: 20,
+      paddingVertical: 13,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    categoryChipSelected: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    categoryText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    categoryTextSelected: {
+      color: theme.colors.textOnPrimary,
+    },
+    notesSection: {
+      flex: 1,
+    },
+    notesSubtitle: {
+      color: theme.colors.textMuted,
+      fontSize: 13,
+      marginTop: 6,
+    },
+    noteCount: {
+      color: theme.colors.textMuted,
+      fontSize: 11,
+      fontWeight: "700",
+      letterSpacing: 1,
+    },
+    controlsContainer: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 12,
+      marginBottom: 22,
+      zIndex: 5,
+    },
+    controlColumn: {
+      flex: 1,
+      minWidth: 0,
+      position: "relative",
+      zIndex: 5,
+    },
+    controlLabel: {
+      color: theme.colors.textMuted,
+      fontSize: 10,
+      fontWeight: "700",
+      letterSpacing: 1.1,
+      marginBottom: 9,
+    },
+    controlButton: {
+      minHeight: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.lg,
+      paddingHorizontal: 13,
+      gap: 8,
+    },
+    controlButtonActive: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.surfaceElevated,
+    },
+    controlButtonLeft: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      minWidth: 0,
+    },
+    controlIcon: {
+      color: theme.colors.primaryLight,
+      fontSize: 19,
+    },
+    controlButtonText: {
+      color: theme.colors.textPrimary,
+      fontSize: 13,
+      fontWeight: "600",
+      flexShrink: 1,
+    },
+    controlChevron: {
+      color: theme.colors.textMuted,
+      fontSize: 10,
+    },
+    dropdownMenu: {
+      position: "absolute",
+      top: 80,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.colors.surfaceElevated,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.lg,
+      padding: 6,
+      zIndex: 20,
+      elevation: 8,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.2,
+      shadowRadius: 10,
+    },
+    dropdownItem: {
+      minHeight: 43,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 12,
+      borderRadius: theme.radius.md,
+    },
+    dropdownItemSelected: {
+      backgroundColor: `${theme.colors.primary}20`,
+    },
+    dropdownItemText: {
+      color: theme.colors.textSecondary,
+      fontSize: 13,
+      fontWeight: "500",
+    },
+    dropdownItemTextSelected: {
+      color: theme.colors.primaryLight,
+      fontWeight: "700",
+    },
+    dropdownCheck: {
+      color: theme.colors.primaryLight,
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    loadingContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 60,
+      gap: 14,
+    },
+    loadingText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+    },
+    notesList: {
+      gap: 14,
+    },
+    noteCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 20,
+    },
+    noteCardHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+      gap: 12,
+    },
+    noteCategory: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      paddingHorizontal: 11,
+      paddingVertical: 7,
+      borderRadius: theme.radius.full,
+    },
+    categoryDot: {
+      width: 7,
+      height: 7,
+      borderRadius: theme.radius.full,
+    },
+    noteCategoryText: {
+      fontSize: 12,
+      fontWeight: "600",
+    },
+    noteDate: {
+      color: theme.colors.textMuted,
+      fontSize: 12,
+    },
+    noteTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: 17,
+      fontWeight: "700",
+      marginBottom: 9,
+    },
+    noteContent: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+    },
+    noteActions: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      gap: 10,
+      marginTop: 18,
+      paddingTop: 14,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.divider,
+    },
+    editButton: {
+      paddingHorizontal: 15,
+      paddingVertical: 9,
+      borderRadius: theme.radius.md,
+      backgroundColor: `${theme.colors.primary}20`,
+    },
+    editButtonText: {
+      color: theme.colors.primaryLight,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    deleteButton: {
+      paddingHorizontal: 15,
+      paddingVertical: 9,
+      borderRadius: theme.radius.md,
+      backgroundColor: `${theme.colors.status.error}18`,
+    },
+    deleteButtonText: {
+      color: theme.colors.status.error,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    emptyState: {
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderStyle: "dashed",
+      paddingHorizontal: 24,
+      paddingVertical: 36,
+      marginTop: 8,
+    },
+    emptyIllustration: {
+      width: 280,
+      height: 190,
+      maxWidth: "100%",
+      marginBottom: 20,
+    },
+    emptyTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: 19,
+      fontWeight: "700",
+      textAlign: "center",
+      marginBottom: 12,
+    },
+    emptyDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+      textAlign: "center",
+      maxWidth: 380,
+      marginBottom: 28,
+    },
+    createButton: {
+      minHeight: 54,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.lg,
+      paddingHorizontal: 24,
+      gap: 10,
+    },
+    createButtonIcon: {
+      color: theme.colors.textOnPrimary,
+      fontSize: 22,
+      fontWeight: "600",
+    },
+    createButtonText: {
+      color: theme.colors.textOnPrimary,
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    noResults: {
+      alignItems: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 32,
+    },
+    noResultsTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: 17,
+      fontWeight: "700",
+      marginBottom: 8,
+    },
+    noResultsDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+      textAlign: "center",
+    },
+    addAnotherButton: {
+      minHeight: 52,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      marginTop: 20,
+    },
+    addAnotherButtonText: {
+      color: theme.colors.primaryLight,
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: theme.colors.overlay,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+    },
+    confirmationCard: {
+      width: "100%",
+      maxWidth: 420,
+      backgroundColor: theme.colors.surfaceElevated,
+      borderRadius: theme.radius.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 24,
+      alignItems: "center",
+    },
+    confirmationIcon: {
+      width: 52,
+      height: 52,
+      borderRadius: theme.radius.full,
+      backgroundColor: `${theme.colors.status.error}20`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 18,
+    },
+    confirmationIconText: {
+      color: theme.colors.status.error,
+      fontSize: 26,
+      fontWeight: "700",
+    },
+    confirmationTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: 20,
+      fontWeight: "700",
+      marginBottom: 12,
+      textAlign: "center",
+    },
+    confirmationDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+      textAlign: "center",
+      marginBottom: 24,
+    },
+    confirmationNoteTitle: {
+      color: theme.colors.textPrimary,
+      fontWeight: "700",
+    },
+    confirmationActions: {
+      width: "100%",
+      flexDirection: "row",
+      gap: 12,
+    },
+    cancelDeleteButton: {
+      flex: 1,
+      minHeight: 48,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    cancelDeleteButtonText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    confirmDeleteButton: {
+      flex: 1,
+      minHeight: 48,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.status.error,
+      borderRadius: theme.radius.md,
+    },
+    confirmDeleteButtonText: {
+      color: theme.colors.white,
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    buttonPressed: {
+      opacity: 0.8,
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+  });
+}
