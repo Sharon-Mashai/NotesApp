@@ -9,6 +9,16 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  LockIcon,
+  Logout01Icon,
+  Moon01Icon,
+  ProfileIcon,
+  Sun01Icon,
+} from "@hugeicons/core-free-icons";
 
 import { type AppTheme } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,7 +79,11 @@ export default function SettingsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <Text style={styles.backIcon}>{"\u2039"}</Text>
+            <HugeiconsIcon
+              icon={ArrowLeft01Icon}
+              size={21}
+              color={theme.colors.textPrimary}
+            />
           </Pressable>
 
           <View>
@@ -83,7 +97,11 @@ export default function SettingsScreen() {
 
           <View style={styles.settingCard}>
             <View style={styles.settingIcon}>
-              <Text style={styles.iconText}>{"\u263E"}</Text>
+              <HugeiconsIcon
+                icon={Moon01Icon}
+                size={23}
+                color={theme.colors.primaryLight}
+              />
             </View>
 
             <View style={styles.settingDetails}>
@@ -109,14 +127,25 @@ export default function SettingsScreen() {
               accessibilityLabel="Switch to light mode"
               accessibilityState={{ selected: mode === "light" }}
             >
-              <Text
-                style={[
-                  styles.modeButtonText,
-                  mode === "light" && styles.modeButtonTextActive,
-                ]}
-              >
-                {"\u2600"} Light
-              </Text>
+              <View style={styles.modeButtonContent}>
+                <HugeiconsIcon
+                  icon={Sun01Icon}
+                  size={19}
+                  color={
+                    mode === "light"
+                      ? theme.colors.textOnPrimary
+                      : theme.colors.textSecondary
+                  }
+                />
+                <Text
+                  style={[
+                    styles.modeButtonText,
+                    mode === "light" && styles.modeButtonTextActive,
+                  ]}
+                >
+                  Light
+                </Text>
+              </View>
             </Pressable>
 
             <Pressable
@@ -129,14 +158,25 @@ export default function SettingsScreen() {
               accessibilityLabel="Switch to dark mode"
               accessibilityState={{ selected: mode === "dark" }}
             >
-              <Text
-                style={[
-                  styles.modeButtonText,
-                  mode === "dark" && styles.modeButtonTextActive,
-                ]}
-              >
-                {"\u263E"} Dark
-              </Text>
+              <View style={styles.modeButtonContent}>
+                <HugeiconsIcon
+                  icon={Moon01Icon}
+                  size={19}
+                  color={
+                    mode === "dark"
+                      ? theme.colors.textOnPrimary
+                      : theme.colors.textSecondary
+                  }
+                />
+                <Text
+                  style={[
+                    styles.modeButtonText,
+                    mode === "dark" && styles.modeButtonTextActive,
+                  ]}
+                >
+                  Dark
+                </Text>
+              </View>
             </Pressable>
           </View>
         </View>
@@ -148,9 +188,14 @@ export default function SettingsScreen() {
             style={styles.settingCard}
             onPress={handleOpenProfile}
             accessibilityRole="button"
+            accessibilityLabel="Open profile"
           >
             <View style={styles.settingIcon}>
-              <Text style={styles.iconText}>{"\u263A"}</Text>
+              <HugeiconsIcon
+                icon={ProfileIcon}
+                size={23}
+                color={theme.colors.primaryLight}
+              />
             </View>
 
             <View style={styles.settingDetails}>
@@ -160,7 +205,11 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>{"\u203A"}</Text>
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={21}
+              color={theme.colors.textSecondary}
+            />
           </Pressable>
         </View>
 
@@ -171,9 +220,14 @@ export default function SettingsScreen() {
             style={styles.settingCard}
             onPress={handleOpenProfile}
             accessibilityRole="button"
+            accessibilityLabel="Manage password"
           >
             <View style={styles.settingIcon}>
-              <Text style={styles.iconText}>{"\u26BF"}</Text>
+              <HugeiconsIcon
+                icon={LockIcon}
+                size={23}
+                color={theme.colors.primaryLight}
+              />
             </View>
 
             <View style={styles.settingDetails}>
@@ -183,7 +237,11 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>{"\u203A"}</Text>
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={21}
+              color={theme.colors.textSecondary}
+            />
           </Pressable>
         </View>
 
@@ -195,11 +253,14 @@ export default function SettingsScreen() {
             onPress={handleSignOut}
             disabled={isSigningOut}
             accessibilityRole="button"
+            accessibilityLabel="Sign out"
           >
             <View style={styles.settingIcon}>
-              <Text style={[styles.iconText, styles.signOutText]}>
-                {"\u21AA"}
-              </Text>
+              <HugeiconsIcon
+                icon={Logout01Icon}
+                size={23}
+                color={theme.colors.status.error}
+              />
             </View>
 
             <View style={styles.settingDetails}>
@@ -211,7 +272,11 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            <Text style={[styles.arrow, styles.signOutText]}>{"\u203A"}</Text>
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={21}
+              color={theme.colors.status.error}
+            />
           </Pressable>
         </View>
       </ScrollView>
@@ -225,7 +290,11 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIcon}>
-              <Text style={styles.modalIconText}>{"\u21AA"}</Text>
+              <HugeiconsIcon
+                icon={Logout01Icon}
+                size={28}
+                color={theme.colors.status.error}
+              />
             </View>
 
             <Text style={styles.modalTitle}>Sign out?</Text>
@@ -298,11 +367,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
     },
-    backIcon: {
-      color: theme.colors.textPrimary,
-      fontSize: 34,
-      lineHeight: 38,
-    },
     title: {
       color: theme.colors.textPrimary,
       fontSize: theme.typography.sizes.xxl,
@@ -342,10 +406,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
     },
-    iconText: {
-      color: theme.colors.primaryLight,
-      fontSize: 23,
-    },
     settingDetails: {
       flex: 1,
     },
@@ -383,6 +443,12 @@ function createStyles(theme: AppTheme) {
       backgroundColor: theme.colors.primary,
       borderColor: theme.colors.primary,
     },
+    modeButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+    },
     modeButtonText: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.sizes.sm,
@@ -390,10 +456,6 @@ function createStyles(theme: AppTheme) {
     },
     modeButtonTextActive: {
       color: theme.colors.textOnPrimary,
-    },
-    arrow: {
-      color: theme.colors.textSecondary,
-      fontSize: 27,
     },
     signOutCard: {
       borderColor: "rgba(248, 113, 113, 0.25)",
@@ -426,10 +488,6 @@ function createStyles(theme: AppTheme) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: theme.spacing.lg,
-    },
-    modalIconText: {
-      color: theme.colors.status.error,
-      fontSize: 30,
     },
     modalTitle: {
       color: theme.colors.textPrimary,
