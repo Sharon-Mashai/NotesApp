@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,6 +12,8 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -153,7 +155,14 @@ export default function ProfileScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Text style={styles.backButtonText}>‹ Back to Notes</Text>
+            <View style={styles.backButtonContent}>
+  <HugeiconsIcon
+    icon={ArrowLeft01Icon}
+    size={20}
+    color={theme.colors.primaryLight}
+  />
+  <Text style={styles.backButtonText}>Back to Notes</Text>
+</View>
           </Pressable>
 
           <View style={styles.headingContainer}>
@@ -452,6 +461,11 @@ function createStyles(theme: AppTheme) {
       paddingVertical: theme.spacing.sm,
       paddingRight: theme.spacing.md,
     },
+    backButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+    },
     backButtonText: {
       color: theme.colors.primaryLight,
       fontSize: theme.typography.sizes.md,
@@ -714,3 +728,4 @@ function createStyles(theme: AppTheme) {
     },
   });
 }
+
