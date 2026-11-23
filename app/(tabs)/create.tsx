@@ -13,7 +13,8 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
-import { theme } from "@/constants/theme";
+import { useTheme } from "@/contexts/ThemeContext";
+import type { AppTheme } from "@/constants/theme";
 import { createNote, getNotes, updateNote } from "@/services/notes";
 import type { NoteCategory } from "@/types/note";
 
@@ -36,6 +37,9 @@ function getCategoryRoute(category?: NoteCategory) {
 }
 
 export default function CreateNoteScreen() {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const { id, category, returnTo } = useLocalSearchParams<{
     id?: string;
     category?: string;
@@ -314,178 +318,180 @@ export default function CreateNoteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  loadingScreen: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.background,
-    gap: 14,
-  },
-  loadingText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 32,
-    paddingBottom: 40,
-  },
-  contentWrapper: {
-    width: "100%",
-    maxWidth: 900,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 36,
-    gap: 16,
-  },
-  headerText: {
-    flex: 1,
-  },
-  eyebrow: {
-    color: theme.colors.primary,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.5,
-    marginBottom: 10,
-  },
-  heading: {
-    color: theme.colors.textPrimary,
-    fontSize: 27,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 21,
-    maxWidth: 400,
-  },
-  cancelButton: {
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  cancelButtonText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  field: {
-    marginBottom: 28,
-  },
-  label: {
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-    fontWeight: "600",
-    marginBottom: 12,
-  },
-  titleInput: {
-    minHeight: 56,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    paddingHorizontal: 16,
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-  },
-  contentInput: {
-    minHeight: 240,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: 16,
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-    lineHeight: 24,
-  },
-  helperText: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    marginTop: 8,
-  },
-  characterCount: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    textAlign: "right",
-    marginTop: 8,
-  },
-  categoryList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  categoryButton: {
-    paddingHorizontal: 22,
-    paddingVertical: 13,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  categoryButtonSelected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  categoryButtonText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  categoryButtonTextSelected: {
-    color: theme.colors.textOnPrimary,
-  },
-  lockedCategory: {
-    marginBottom: 28,
-    padding: 16,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  lockedCategoryLabel: {
-    color: theme.colors.textMuted,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginBottom: 7,
-  },
-  lockedCategoryText: {
-    color: theme.colors.primaryLight,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  saveButton: {
-    minHeight: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.lg,
-    marginTop: 8,
-  },
-  saveButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-});
+function createStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    loadingScreen: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.background,
+      gap: 14,
+    },
+    loadingText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      alignItems: "center",
+      paddingHorizontal: 20,
+      paddingTop: 32,
+      paddingBottom: 40,
+    },
+    contentWrapper: {
+      width: "100%",
+      maxWidth: 900,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 36,
+      gap: 16,
+    },
+    headerText: {
+      flex: 1,
+    },
+    eyebrow: {
+      color: theme.colors.primary,
+      fontSize: 11,
+      fontWeight: "700",
+      letterSpacing: 1.5,
+      marginBottom: 10,
+    },
+    heading: {
+      color: theme.colors.textPrimary,
+      fontSize: 27,
+      fontWeight: "700",
+      marginBottom: 8,
+    },
+    subtitle: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 21,
+      maxWidth: 400,
+    },
+    cancelButton: {
+      paddingHorizontal: 18,
+      paddingVertical: 11,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    cancelButtonText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    field: {
+      marginBottom: 28,
+    },
+    label: {
+      color: theme.colors.textPrimary,
+      fontSize: 15,
+      fontWeight: "600",
+      marginBottom: 12,
+    },
+    titleInput: {
+      minHeight: 56,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      paddingHorizontal: 16,
+      color: theme.colors.textPrimary,
+      fontSize: 15,
+    },
+    contentInput: {
+      minHeight: 240,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 16,
+      color: theme.colors.textPrimary,
+      fontSize: 15,
+      lineHeight: 24,
+    },
+    helperText: {
+      color: theme.colors.textMuted,
+      fontSize: 12,
+      marginTop: 8,
+    },
+    characterCount: {
+      color: theme.colors.textMuted,
+      fontSize: 12,
+      textAlign: "right",
+      marginTop: 8,
+    },
+    categoryList: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+    },
+    categoryButton: {
+      paddingHorizontal: 22,
+      paddingVertical: 13,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    categoryButtonSelected: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    categoryButtonText: {
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    categoryButtonTextSelected: {
+      color: theme.colors.textOnPrimary,
+    },
+    lockedCategory: {
+      marginBottom: 28,
+      padding: 16,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    lockedCategoryLabel: {
+      color: theme.colors.textMuted,
+      fontSize: 10,
+      fontWeight: "700",
+      letterSpacing: 1.2,
+      marginBottom: 7,
+    },
+    lockedCategoryText: {
+      color: theme.colors.primaryLight,
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    saveButton: {
+      minHeight: 56,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radius.lg,
+      marginTop: 8,
+    },
+    saveButtonText: {
+      color: theme.colors.textOnPrimary,
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    buttonPressed: {
+      opacity: 0.8,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+  });
+}
