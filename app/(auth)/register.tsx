@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -14,10 +15,13 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { theme } from "@/constants/theme";
+import { useTheme } from "@/contexts/ThemeContext";
+import type { AppTheme } from "@/constants/theme";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
@@ -283,142 +287,144 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  container: {
-    width: "100%",
-    maxWidth: 460,
-    alignSelf: "center",
-  },
-  logoContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 12,
-  },
-  logo: {
-    color: theme.colors.textOnPrimary,
-    fontSize: 24,
-    fontWeight: "800",
-  },
-  heading: {
-    color: theme.colors.textPrimary,
-    fontSize: 26,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 19,
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  form: {
-    gap: 11,
-  },
-  inputGroup: {
-    gap: 5,
-  },
-  label: {
-    color: theme.colors.textPrimary,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  input: {
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: 14,
-    color: theme.colors.textPrimary,
-    fontSize: 14,
-  },
-  helperText: {
-    color: theme.colors.textMuted,
-    fontSize: 11,
-    lineHeight: 14,
-  },
-  passwordContainer: {
-    height: 46,
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: 14,
-  },
-  passwordInput: {
-    flex: 1,
-    color: theme.colors.textPrimary,
-    fontSize: 14,
-  },
-  eyeButton: {
-    padding: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  errorContainer: {
-    backgroundColor: "#3A2028",
-    borderWidth: 1,
-    borderColor: theme.colors.status.error,
-    borderRadius: 10,
-    padding: 9,
-  },
-  errorText: {
-    color: theme.colors.status.error,
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  registerButton: {
-    height: 48,
-    borderRadius: 13,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 3,
-  },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  registerButtonText: {
-    color: theme.colors.textOnPrimary,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  loginContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 16,
-    flexWrap: "wrap",
-  },
-  loginText: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
-  },
-  loginLink: {
-    color: theme.colors.primary,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-});
+function createStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    content: {
+      flex: 1,
+      justifyContent: "center",
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+    },
+    container: {
+      width: "100%",
+      maxWidth: 460,
+      alignSelf: "center",
+    },
+    logoContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 15,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+      marginBottom: 12,
+    },
+    logo: {
+      color: theme.colors.textOnPrimary,
+      fontSize: 24,
+      fontWeight: "800",
+    },
+    heading: {
+      color: theme.colors.textPrimary,
+      fontSize: 26,
+      fontWeight: "700",
+      textAlign: "center",
+      marginBottom: 6,
+    },
+    subtitle: {
+      color: theme.colors.textSecondary,
+      fontSize: 13,
+      lineHeight: 19,
+      textAlign: "center",
+      marginBottom: 16,
+    },
+    form: {
+      gap: 11,
+    },
+    inputGroup: {
+      gap: 5,
+    },
+    label: {
+      color: theme.colors.textPrimary,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    input: {
+      height: 46,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 14,
+      color: theme.colors.textPrimary,
+      fontSize: 14,
+    },
+    helperText: {
+      color: theme.colors.textMuted,
+      fontSize: 11,
+      lineHeight: 14,
+    },
+    passwordContainer: {
+      height: 46,
+      flexDirection: "row",
+      alignItems: "center",
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 14,
+    },
+    passwordInput: {
+      flex: 1,
+      color: theme.colors.textPrimary,
+      fontSize: 14,
+    },
+    eyeButton: {
+      padding: 6,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    errorContainer: {
+      backgroundColor: theme.colors.surfaceElevated,
+      borderWidth: 1,
+      borderColor: theme.colors.status.error,
+      borderRadius: 10,
+      padding: 9,
+    },
+    errorText: {
+      color: theme.colors.status.error,
+      fontSize: 12,
+      lineHeight: 17,
+    },
+    registerButton: {
+      height: 48,
+      borderRadius: 13,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 3,
+    },
+    buttonPressed: {
+      opacity: 0.8,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    registerButtonText: {
+      color: theme.colors.textOnPrimary,
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    loginContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 16,
+      flexWrap: "wrap",
+    },
+    loginText: {
+      color: theme.colors.textSecondary,
+      fontSize: 13,
+    },
+    loginLink: {
+      color: theme.colors.primary,
+      fontSize: 13,
+      fontWeight: "700",
+    },
+  });
+}
