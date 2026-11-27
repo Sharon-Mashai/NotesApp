@@ -1,41 +1,15 @@
+
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert,Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import {
-  Add01Icon,
-  Alert01Icon,
-  Cancel01Icon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  FilterIcon,
-  Home01Icon,
-  Search01Icon,
-  Sorting01Icon,
-} from "@hugeicons/core-free-icons";
-
+import { Add01Icon, Alert01Icon, Cancel01Icon, CheckIcon, ChevronDownIcon, ChevronUpIcon, FilterIcon, Home01Icon,Search01Icon, Sorting01Icon,} from "@hugeicons/core-free-icons";
 import { type AppTheme, type ThemeMode } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
-import {
-  searchNotes,
-  sortNotes,
-  type NoteSortOrder,
-} from "@/utils/noteHelpers";
+import {searchNotes,sortNotes, type NoteSortOrder,} from "@/utils/noteHelpers";
 
 const categories = [
   { label: "All notes", value: "all" },
@@ -309,11 +283,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={styles.scrollContent}>
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
@@ -615,29 +585,9 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
-
-            {!isLoading && notes.length > 0 && (
-              <Pressable
-                onPress={handleAddNote}
-                style={({ pressed }) => [
-                  styles.addAnotherButton,
-                  pressed && styles.buttonPressed,
-                ]}
-                accessibilityRole="button"
-              >
-                <HugeiconsIcon
-                  icon={Add01Icon}
-                  size={19}
-                  color={theme.colors.primaryLight}
-                />
-                <Text style={styles.addAnotherButtonText}>
-                  Add another note
-                </Text>
-              </Pressable>
-            )}
           </View>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Bottom navigation */}
       <View style={styles.bottomNavWrapper}>
@@ -665,7 +615,7 @@ export default function HomeScreen() {
             <View style={styles.navAddButton}>
               <HugeiconsIcon
                 icon={Add01Icon}
-                size={29}
+                size={23}
                 color={theme.colors.textOnPrimary}
               />
             </View>
@@ -760,11 +710,11 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       backgroundColor: theme.colors.background,
     },
     scrollContent: {
-      flexGrow: 1,
+      flex: 1,
       alignItems: "center",
       paddingHorizontal: 20,
-      paddingTop: 28,
-      paddingBottom: 40,
+      paddingTop: 16,
+      paddingBottom: 8,
     },
     content: {
       width: "100%",
@@ -774,7 +724,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "flex-start",
-      marginBottom: 28,
+      marginBottom: 16,
     },
     headerText: {
       flex: 1,
@@ -784,20 +734,20 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       fontSize: 11,
       fontWeight: "700",
       letterSpacing: 1.5,
-      marginBottom: 10,
+      marginBottom: 6,
     },
     title: {
       color: theme.colors.textPrimary,
       fontSize: 27,
       fontWeight: "700",
-      marginBottom: 7,
+      marginBottom: 5,
     },
     subtitle: {
       color: theme.colors.textSecondary,
       fontSize: 14,
     },
     searchContainer: {
-      height: 58,
+      height: 48,
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: theme.colors.surface,
@@ -806,7 +756,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       borderColor: theme.colors.border,
       paddingHorizontal: 18,
       gap: 14,
-      marginBottom: 38,
+      marginBottom: 20,
     },
     searchInput: {
       flex: 1,
@@ -816,13 +766,13 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       outlineStyle: "none",
     } as object,
     section: {
-      marginBottom: 36,
+      marginBottom: 14,
     },
     sectionHeader: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      marginBottom: 18,
+      marginBottom: 10,
     },
     sectionTitle: {
       color: theme.colors.textPrimary,
@@ -835,7 +785,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     },
     categoryChip: {
       paddingHorizontal: 20,
-      paddingVertical: 13,
+      paddingVertical: 9,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.surface,
       borderWidth: 1,
@@ -859,7 +809,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     notesSubtitle: {
       color: theme.colors.textMuted,
       fontSize: 13,
-      marginTop: 6,
+      marginTop: 4,
     },
     noteCount: {
       color: theme.colors.textMuted,
@@ -871,7 +821,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       flexDirection: "row",
       alignItems: "flex-start",
       gap: 12,
-      marginBottom: 22,
+      marginBottom: 12,
       zIndex: 5,
     },
     controlColumn: {
@@ -885,10 +835,10 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       fontSize: 10,
       fontWeight: "700",
       letterSpacing: 1.1,
-      marginBottom: 9,
+      marginBottom: 7,
     },
     controlButton: {
-      minHeight: 50,
+      minHeight: 44,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -956,8 +906,8 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     loadingContainer: {
       alignItems: "center",
       justifyContent: "center",
-      paddingVertical: 60,
-      gap: 14,
+      paddingVertical: 30,
+      gap: 10,
     },
     loadingText: {
       color: theme.colors.textSecondary,
@@ -1047,38 +997,33 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     emptyState: {
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.radius.xl,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderStyle: "dashed",
-      paddingHorizontal: 24,
-      paddingVertical: 36,
-      marginTop: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 20,
+      marginTop: 45,
     },
     emptyIllustration: {
-      width: 280,
-      height: 190,
+      width: 190,
+      height: 125,
       maxWidth: "100%",
-      marginBottom: 20,
+      marginBottom: 14,
     },
     emptyTitle: {
       color: theme.colors.textPrimary,
-      fontSize: 19,
+      fontSize: 18,
       fontWeight: "700",
       textAlign: "center",
-      marginBottom: 12,
+      marginBottom: 8,
     },
     emptyDescription: {
       color: theme.colors.textSecondary,
-      fontSize: 14,
-      lineHeight: 22,
+      fontSize: 13,
+      lineHeight: 20,
       textAlign: "center",
       maxWidth: 380,
-      marginBottom: 28,
+      marginBottom: 18,
     },
     createButton: {
-      minHeight: 54,
+      minHeight: 46,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
@@ -1098,7 +1043,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       borderRadius: theme.radius.xl,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      padding: 32,
+      padding: 24,
     },
     noResultsTitle: {
       color: theme.colors.textPrimary,
@@ -1111,23 +1056,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       fontSize: 14,
       lineHeight: 22,
       textAlign: "center",
-    },
-    addAnotherButton: {
-      minHeight: 52,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 9,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.radius.lg,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      marginTop: 20,
-    },
-    addAnotherButtonText: {
-      color: theme.colors.primaryLight,
-      fontSize: 14,
-      fontWeight: "700",
     },
 
     // Bottom navigation
@@ -1181,8 +1109,8 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       marginTop: -17,
     },
     navAddButton: {
-      width: 54,
-      height: 54,
+      width: 42,
+      height: 42,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primary,
       alignItems: "center",
