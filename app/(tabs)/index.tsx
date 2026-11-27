@@ -1,15 +1,40 @@
-
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { ActivityIndicator, Alert,Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { Add01Icon, Alert01Icon, Cancel01Icon, CheckIcon, ChevronDownIcon, ChevronUpIcon, FilterIcon, Home01Icon,Search01Icon, Sorting01Icon,} from "@hugeicons/core-free-icons";
+import {
+  Add01Icon,
+  Alert01Icon,
+  Cancel01Icon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  FilterIcon,
+  Home01Icon,
+  Search01Icon,
+  Sorting01Icon,
+} from "@hugeicons/core-free-icons";
 import { type AppTheme, type ThemeMode } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { deleteNote, getNotes } from "@/services/notes";
 import type { Note, NoteCategory } from "@/types/note";
-import {searchNotes,sortNotes, type NoteSortOrder,} from "@/utils/noteHelpers";
+import {
+  searchNotes,
+  sortNotes,
+  type NoteSortOrder,
+} from "@/utils/noteHelpers";
 
 const categories = [
   { label: "All notes", value: "all" },
@@ -719,6 +744,7 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     content: {
       width: "100%",
       maxWidth: 900,
+      flex: 1,
     },
     header: {
       flexDirection: "row",
@@ -995,11 +1021,12 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       fontWeight: "600",
     },
     emptyState: {
+      flex: 1,
       alignItems: "center",
       justifyContent: "center",
       paddingHorizontal: 20,
       paddingVertical: 20,
-      marginTop: 45,
+      marginTop: 0,
     },
     emptyIllustration: {
       width: 190,
