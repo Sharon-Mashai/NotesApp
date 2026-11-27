@@ -21,8 +21,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   FilterIcon,
+  Home01Icon,
   Search01Icon,
-  Settings01Icon,
   Sorting01Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -187,10 +187,6 @@ export default function HomeScreen() {
     });
   };
 
-  const handleSettings = () => {
-    router.push("/settings");
-  };
-
   const handleDeleteRequest = (note: Note) => {
     setNoteToDelete(note);
   };
@@ -325,30 +321,6 @@ export default function HomeScreen() {
               <Text style={styles.greeting}>YOUR PERSONAL SPACE</Text>
               <Text style={styles.title}>Hello, {username}!</Text>
               <Text style={styles.subtitle}>What's on your mind today?</Text>
-            </View>
-
-            <View style={styles.headerActions}>
-              <Pressable
-                style={styles.profileButton}
-                onPress={() => router.push("/profile")}
-                accessibilityRole="button"
-                accessibilityLabel="Open profile"
-              >
-                <Text style={styles.profileInitial}>{profileInitial}</Text>
-              </Pressable>
-
-              <Pressable
-                style={styles.settingsButton}
-                onPress={handleSettings}
-                accessibilityRole="button"
-                accessibilityLabel="Settings"
-              >
-                <HugeiconsIcon
-                  icon={Settings01Icon}
-                  size={22}
-                  color={theme.colors.textSecondary}
-                />
-              </Pressable>
             </View>
           </View>
 
@@ -667,6 +639,53 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
+      {/* Bottom navigation */}
+      <View style={styles.bottomNavWrapper}>
+        <View style={styles.bottomNav}>
+          <Pressable
+            style={styles.navItem}
+            onPress={() => router.replace("/(tabs)")}
+            accessibilityRole="button"
+            accessibilityLabel="Home"
+          >
+            <HugeiconsIcon
+              icon={Home01Icon}
+              size={23}
+              color={theme.colors.primary}
+            />
+            <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navAddItem}
+            onPress={handleAddNote}
+            accessibilityRole="button"
+            accessibilityLabel="Add a note"
+          >
+            <View style={styles.navAddButton}>
+              <HugeiconsIcon
+                icon={Add01Icon}
+                size={29}
+                color={theme.colors.textOnPrimary}
+              />
+            </View>
+            <Text style={styles.navAddLabel}>Add</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navItem}
+            onPress={() => router.push("/profile")}
+            accessibilityRole="button"
+            accessibilityLabel="Profile"
+          >
+            <View style={styles.navProfileCircle}>
+              <Text style={styles.navProfileInitial}>{profileInitial}</Text>
+            </View>
+            <Text style={styles.navLabel}>Profile</Text>
+          </Pressable>
+        </View>
+      </View>
+
       {/* Delete confirmation dialog */}
       <Modal
         visible={noteToDelete !== null}
@@ -776,35 +795,6 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
     subtitle: {
       color: theme.colors.textSecondary,
       fontSize: 14,
-    },
-    headerActions: {
-      alignItems: "center",
-      gap: 8,
-    },
-    profileButton: {
-      width: 46,
-      height: 46,
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.surfaceElevated,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    profileInitial: {
-      color: theme.colors.primaryLight,
-      fontSize: 18,
-      fontWeight: "700",
-    },
-    settingsButton: {
-      width: 46,
-      height: 46,
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.surface,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      alignItems: "center",
-      justifyContent: "center",
     },
     searchContainer: {
       height: 58,
@@ -1139,6 +1129,89 @@ function createStyles(theme: AppTheme, mode: ThemeMode) {
       fontSize: 14,
       fontWeight: "700",
     },
+
+    // Bottom navigation
+    bottomNavWrapper: {
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: 12,
+      backgroundColor: theme.colors.background,
+    },
+    bottomNav: {
+      width: "100%",
+      maxWidth: 900,
+      alignSelf: "center",
+      minHeight: 76,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-around",
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.xl,
+      paddingHorizontal: 8,
+      paddingVertical: 8,
+      elevation: 5,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+    },
+    navItem: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 5,
+      minHeight: 58,
+    },
+    navLabel: {
+      color: theme.colors.textSecondary,
+      fontSize: 11,
+      fontWeight: "600",
+    },
+    navLabelActive: {
+      color: theme.colors.primary,
+    },
+    navAddItem: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 3,
+      minHeight: 58,
+      marginTop: -17,
+    },
+    navAddButton: {
+      width: 54,
+      height: 54,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 4,
+      borderColor: theme.colors.background,
+      elevation: 5,
+    },
+    navAddLabel: {
+      color: theme.colors.primaryLight,
+      fontSize: 11,
+      fontWeight: "700",
+    },
+    navProfileCircle: {
+      width: 25,
+      height: 25,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.surfaceElevated,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    navProfileInitial: {
+      color: theme.colors.primaryLight,
+      fontSize: 12,
+      fontWeight: "700",
+    },
+
     modalOverlay: {
       flex: 1,
       backgroundColor: theme.colors.overlay,

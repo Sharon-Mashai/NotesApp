@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, Settings01Icon } from "@hugeicons/core-free-icons";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -156,13 +156,13 @@ export default function ProfileScreen() {
             ]}
           >
             <View style={styles.backButtonContent}>
-  <HugeiconsIcon
-    icon={ArrowLeft01Icon}
-    size={20}
-    color={theme.colors.primaryLight}
-  />
-  <Text style={styles.backButtonText}>Back to Notes</Text>
-</View>
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={20}
+                color={theme.colors.primaryLight}
+              />
+              <Text style={styles.backButtonText}>Back to Notes</Text>
+            </View>
           </Pressable>
 
           <View style={styles.headingContainer}>
@@ -182,6 +182,34 @@ export default function ProfileScreen() {
             <Text style={styles.displayUsername}>@{user.username}</Text>
             <Text style={styles.displayEmail}>{user.email}</Text>
           </View>
+
+          {/* Settings navigation */}
+          <Pressable
+            onPress={() => router.push("/settings")}
+            style={({ pressed }) => [
+              styles.settingsCard,
+              pressed && styles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Open Settings"
+          >
+            <View style={styles.settingsIcon}>
+              <HugeiconsIcon
+                icon={Settings01Icon}
+                size={23}
+                color={theme.colors.primaryLight}
+              />
+            </View>
+
+            <View style={styles.settingsTextContainer}>
+              <Text style={styles.settingsTitle}>Settings</Text>
+              <Text style={styles.settingsDescription}>
+                Manage your app preferences and appearance.
+              </Text>
+            </View>
+
+            <Text style={styles.settingsArrow}>›</Text>
+          </Pressable>
 
           <View style={styles.formCard}>
             <Text style={styles.sectionTitle}>Personal information</Text>
@@ -528,6 +556,43 @@ function createStyles(theme: AppTheme) {
       fontSize: theme.typography.sizes.sm,
       textAlign: "center",
     },
+    settingsCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radius.xl,
+      padding: theme.spacing.lg,
+    },
+    settingsIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: theme.radius.md,
+      backgroundColor: `${theme.colors.primary}20`,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    settingsTextContainer: {
+      flex: 1,
+      gap: 4,
+    },
+    settingsTitle: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.md,
+      fontWeight: theme.typography.weights.bold,
+    },
+    settingsDescription: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.sizes.sm,
+      lineHeight: 19,
+    },
+    settingsArrow: {
+      color: theme.colors.textMuted,
+      fontSize: 27,
+      fontWeight: "400",
+    },
     formCard: {
       backgroundColor: theme.colors.surface,
       borderColor: theme.colors.border,
@@ -728,4 +793,3 @@ function createStyles(theme: AppTheme) {
     },
   });
 }
-
