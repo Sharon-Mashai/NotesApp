@@ -9,6 +9,13 @@ A cross-platform Notes App built with **React Native and Expo**. It allows users
 
 ### Dark Mode
 ![Notes App - Dark Mode](assets/images/Dark-Mode.png)
+
+## Download
+
+**[Download NotesApp for Android](https://drive.google.com/drive/folders/1Ww6tgZWx6GwoUKp5_XPahoED8ugeJzrH?usp=sharing)**
+
+Download the Android APK from the Google Drive folder and install it on your Android device.
+
 ## Features
 
 ### User Authentication
