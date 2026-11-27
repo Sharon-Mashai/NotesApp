@@ -2,6 +2,13 @@
 
 A cross-platform Notes App built with **React Native and Expo**. It allows users to create, manage, organise, search, and sort personal notes through a clean interface with light and dark themes.
 
+## Preview
+
+### Light Mode
+![Notes App - Light Mode](assets/images/Light-Mode.png)
+
+### Dark Mode
+![Notes App - Dark Mode](assets/images/Dark-Mode.png)
 ## Features
 
 ### User Authentication
