@@ -26,6 +26,10 @@ export default function ProfileScreen() {
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [username, setUsername] = useState(user?.username ?? "");
+
+  const [showPersonalInfoForm, setShowPersonalInfoForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -78,6 +82,7 @@ export default function ProfileScreen() {
 
       setFeedbackType("success");
       setFeedback("Your profile has been updated successfully.");
+      setShowPersonalInfoForm(false);
     } catch (error) {
       setFeedbackType("error");
       setFeedback(
@@ -107,6 +112,7 @@ export default function ProfileScreen() {
 
       setPasswordFeedbackType("success");
       setPasswordFeedback("Your password has been changed successfully.");
+      setShowPasswordForm(false);
     } catch (error) {
       setPasswordFeedbackType("error");
       setPasswordFeedback(
@@ -211,58 +217,142 @@ export default function ProfileScreen() {
             <Text style={styles.settingsArrow}>›</Text>
           </Pressable>
 
+          {/* Personal information */}
           <View style={styles.formCard}>
-            <Text style={styles.sectionTitle}>Personal information</Text>
-            <Text style={styles.sectionDescription}>
-              Update your full name and username. Your registered email address
-              cannot be changed.
-            </Text>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Full name</Text>
-              <TextInput
-                value={fullName}
-                onChangeText={(value) => {
-                  setFullName(value);
-                  setFeedback("");
-                }}
-                placeholder="Enter your full name"
-                placeholderTextColor={theme.colors.textMuted}
-                autoCapitalize="words"
-                autoCorrect={false}
-                style={styles.input}
-              />
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Username</Text>
-              <TextInput
-                value={username}
-                onChangeText={(value) => {
-                  setUsername(value);
-                  setFeedback("");
-                }}
-                placeholder="Enter your username"
-                placeholderTextColor={theme.colors.textMuted}
-                autoCapitalize="none"
-                autoCorrect={false}
-                maxLength={20}
-                style={styles.input}
-              />
-              <Text style={styles.fieldHint}>
-                3-20 characters. Letters, numbers and underscores only.
-              </Text>
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Email address</Text>
-              <View style={[styles.input, styles.readOnlyInput]}>
-                <Text style={styles.readOnlyEmail}>{user.email}</Text>
-                <Text style={styles.readOnlyLabel}>Cannot be changed</Text>
+            <View style={styles.sectionHeadingRow}>
+              <View style={styles.sectionHeadingText}>
+                <Text style={styles.sectionTitle}>Personal information</Text>
+                <Text style={styles.sectionDescription}>
+                  Update your full name and username. Your registered email
+                  address cannot be changed.
+                </Text>
               </View>
+
+              {!showPersonalInfoForm && (
+                <Pressable
+                  onPress={() => {
+                    setFullName(user.fullName);
+                    setUsername(user.username);
+                    setFeedback("");
+                    setShowPersonalInfoForm(true);
+                  }}
+                  style={({ pressed }) => [
+                    styles.editButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </Pressable>
+              )}
             </View>
 
-            {feedback ? (
+            {!showPersonalInfoForm ? (
+              <>
+                <View style={styles.readOnlyInfoGroup}>
+                  <Text style={styles.label}>Full name</Text>
+                  <Text style={styles.readOnlyValue}>{user.fullName}</Text>
+                </View>
+
+                <View style={styles.readOnlyInfoGroup}>
+                  <Text style={styles.label}>Username</Text>
+                  <Text style={styles.readOnlyValue}>@{user.username}</Text>
+                </View>
+
+                <View style={styles.readOnlyInfoGroup}>
+                  <Text style={styles.label}>Email address</Text>
+                  <View style={[styles.input, styles.readOnlyInput]}>
+                    <Text style={styles.readOnlyEmail}>{user.email}</Text>
+                    <Text style={styles.readOnlyLabel}>Cannot be changed</Text>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.label}>Full name</Text>
+                  <TextInput
+                    value={fullName}
+                    onChangeText={(value) => {
+                      setFullName(value);
+                      setFeedback("");
+                    }}
+                    placeholder="Enter your full name"
+                    placeholderTextColor={theme.colors.textMuted}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    style={styles.input}
+                  />
+                </View>
+
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.label}>Username</Text>
+                  <TextInput
+                    value={username}
+                    onChangeText={(value) => {
+                      setUsername(value);
+                      setFeedback("");
+                    }}
+                    placeholder="Enter your username"
+                    placeholderTextColor={theme.colors.textMuted}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    maxLength={20}
+                    style={styles.input}
+                  />
+                  <Text style={styles.fieldHint}>
+                    3-20 characters. Letters, numbers and underscores only.
+                  </Text>
+                </View>
+
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.label}>Email address</Text>
+                  <View style={[styles.input, styles.readOnlyInput]}>
+                    <Text style={styles.readOnlyEmail}>{user.email}</Text>
+                    <Text style={styles.readOnlyLabel}>Cannot be changed</Text>
+                  </View>
+                </View>
+
+                {feedback ? (
+                  <View
+                    style={[
+                      styles.feedbackContainer,
+                      feedbackType === "error"
+                        ? styles.errorFeedback
+                        : styles.successFeedback,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.feedbackText,
+                        feedbackType === "error"
+                          ? styles.errorText
+                          : styles.successText,
+                      ]}
+                    >
+                      {feedback}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <Pressable
+                  onPress={handleSaveChanges}
+                  disabled={isSaving}
+                  style={({ pressed }) => [
+                    styles.saveButton,
+                    pressed && !isSaving && styles.pressed,
+                    isSaving && styles.disabledButton,
+                  ]}
+                >
+                  {isSaving ? (
+                    <ActivityIndicator color={theme.colors.textOnPrimary} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>Save Changes</Text>
+                  )}
+                </Pressable>
+              </>
+            )}
+
+            {!showPersonalInfoForm && feedback ? (
               <View
                 style={[
                   styles.feedbackContainer,
@@ -283,120 +373,153 @@ export default function ProfileScreen() {
                 </Text>
               </View>
             ) : null}
-
-            <Pressable
-              onPress={handleSaveChanges}
-              disabled={isSaving}
-              style={({ pressed }) => [
-                styles.saveButton,
-                pressed && !isSaving && styles.pressed,
-                isSaving && styles.disabledButton,
-              ]}
-            >
-              {isSaving ? (
-                <ActivityIndicator color={theme.colors.textOnPrimary} />
-              ) : (
-                <Text style={styles.saveButtonText}>Save Changes</Text>
-              )}
-            </Pressable>
           </View>
 
-          <View style={styles.formCard}>
-            <Text style={styles.sectionTitle}>Change password</Text>
-            <Text style={styles.sectionDescription}>
-              Enter your current password and choose a new password with at
-              least 8 characters.
-            </Text>
+          {/* Change password option and form */}
+          {!showPasswordForm ? (
+            <Pressable
+              onPress={() => {
+                setPasswordFeedback("");
+                setShowPasswordForm(true);
+              }}
+              style={({ pressed }) => [
+                styles.settingsCard,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Change password"
+            >
+              <View style={styles.settingsIcon}>
+                <Text style={styles.passwordOptionIcon}>•••</Text>
+              </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Current password</Text>
-              <TextInput
-                value={currentPassword}
-                onChangeText={(value) => {
-                  setCurrentPassword(value);
-                  setPasswordFeedback("");
-                }}
-                placeholder="Enter your current password"
-                placeholderTextColor={theme.colors.textMuted}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.input}
-              />
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>New password</Text>
-              <TextInput
-                value={newPassword}
-                onChangeText={(value) => {
-                  setNewPassword(value);
-                  setPasswordFeedback("");
-                }}
-                placeholder="Enter your new password"
-                placeholderTextColor={theme.colors.textMuted}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.input}
-              />
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Confirm new password</Text>
-              <TextInput
-                value={confirmPassword}
-                onChangeText={(value) => {
-                  setConfirmPassword(value);
-                  setPasswordFeedback("");
-                }}
-                placeholder="Confirm your new password"
-                placeholderTextColor={theme.colors.textMuted}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.input}
-              />
-            </View>
-
-            {passwordFeedback ? (
-              <View
-                style={[
-                  styles.feedbackContainer,
-                  passwordFeedbackType === "error"
-                    ? styles.errorFeedback
-                    : styles.successFeedback,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.feedbackText,
-                    passwordFeedbackType === "error"
-                      ? styles.errorText
-                      : styles.successText,
-                  ]}
-                >
-                  {passwordFeedback}
+              <View style={styles.settingsTextContainer}>
+                <Text style={styles.settingsTitle}>Change password</Text>
+                <Text style={styles.settingsDescription}>
+                  Update your account password.
                 </Text>
               </View>
-            ) : null}
 
-            <Pressable
-              onPress={handleChangePassword}
-              disabled={isChangingPassword}
-              style={({ pressed }) => [
-                styles.saveButton,
-                pressed && !isChangingPassword && styles.pressed,
-                isChangingPassword && styles.disabledButton,
-              ]}
-            >
-              {isChangingPassword ? (
-                <ActivityIndicator color={theme.colors.textOnPrimary} />
-              ) : (
-                <Text style={styles.saveButtonText}>Update Password</Text>
-              )}
+              <Text style={styles.settingsArrow}>›</Text>
             </Pressable>
-          </View>
+          ) : (
+            <View style={styles.formCard}>
+              <View style={styles.sectionHeadingRow}>
+                <View style={styles.sectionHeadingText}>
+                  <Text style={styles.sectionTitle}>Change password</Text>
+                  <Text style={styles.sectionDescription}>
+                    Enter your current password and choose a new password with
+                    at least 8 characters.
+                  </Text>
+                </View>
+
+                <Pressable
+                  onPress={() => {
+                    setShowPasswordForm(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setPasswordFeedback("");
+                  }}
+                  style={({ pressed }) => [
+                    styles.editButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.editButtonText}>Cancel</Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Current password</Text>
+                <TextInput
+                  value={currentPassword}
+                  onChangeText={(value) => {
+                    setCurrentPassword(value);
+                    setPasswordFeedback("");
+                  }}
+                  placeholder="Enter your current password"
+                  placeholderTextColor={theme.colors.textMuted}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                />
+              </View>
+
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>New password</Text>
+                <TextInput
+                  value={newPassword}
+                  onChangeText={(value) => {
+                    setNewPassword(value);
+                    setPasswordFeedback("");
+                  }}
+                  placeholder="Enter your new password"
+                  placeholderTextColor={theme.colors.textMuted}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                />
+              </View>
+
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Confirm new password</Text>
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={(value) => {
+                    setConfirmPassword(value);
+                    setPasswordFeedback("");
+                  }}
+                  placeholder="Confirm your new password"
+                  placeholderTextColor={theme.colors.textMuted}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                />
+              </View>
+
+              {passwordFeedback ? (
+                <View
+                  style={[
+                    styles.feedbackContainer,
+                    passwordFeedbackType === "error"
+                      ? styles.errorFeedback
+                      : styles.successFeedback,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.feedbackText,
+                      passwordFeedbackType === "error"
+                        ? styles.errorText
+                        : styles.successText,
+                    ]}
+                  >
+                    {passwordFeedback}
+                  </Text>
+                </View>
+              ) : null}
+
+              <Pressable
+                onPress={handleChangePassword}
+                disabled={isChangingPassword}
+                style={({ pressed }) => [
+                  styles.saveButton,
+                  pressed && !isChangingPassword && styles.pressed,
+                  isChangingPassword && styles.disabledButton,
+                ]}
+              >
+                {isChangingPassword ? (
+                  <ActivityIndicator color={theme.colors.textOnPrimary} />
+                ) : (
+                  <Text style={styles.saveButtonText}>Update Password</Text>
+                )}
+              </Pressable>
+            </View>
+          )}
 
           <View style={styles.signOutCard}>
             <View style={styles.signOutTextContainer}>
@@ -593,6 +716,12 @@ function createStyles(theme: AppTheme) {
       fontSize: 27,
       fontWeight: "400",
     },
+    passwordOptionIcon: {
+      color: theme.colors.primaryLight,
+      fontSize: 17,
+      fontWeight: theme.typography.weights.bold,
+      letterSpacing: 2,
+    },
     formCard: {
       backgroundColor: theme.colors.surface,
       borderColor: theme.colors.border,
@@ -600,6 +729,16 @@ function createStyles(theme: AppTheme) {
       borderRadius: theme.radius.xl,
       padding: theme.spacing.xxl,
       gap: theme.spacing.lg,
+    },
+    sectionHeadingRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: theme.spacing.md,
+    },
+    sectionHeadingText: {
+      flex: 1,
+      gap: theme.spacing.md,
     },
     sectionTitle: {
       color: theme.colors.textPrimary,
@@ -609,8 +748,26 @@ function createStyles(theme: AppTheme) {
     sectionDescription: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.sizes.sm,
-      marginTop: -theme.spacing.md,
       lineHeight: 20,
+    },
+    editButton: {
+      borderColor: theme.colors.primary,
+      borderWidth: 1,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
+    },
+    editButtonText: {
+      color: theme.colors.primaryLight,
+      fontSize: theme.typography.sizes.sm,
+      fontWeight: theme.typography.weights.semibold,
+    },
+    readOnlyInfoGroup: {
+      gap: theme.spacing.sm,
+    },
+    readOnlyValue: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.sizes.md,
     },
     fieldGroup: {
       gap: theme.spacing.sm,

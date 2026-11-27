@@ -1,6 +1,7 @@
 export type User = {
   id: string;
   fullName: string;
+  username: string;
   email: string;
   passwordHash: string;
   createdAt: string;
@@ -8,6 +9,7 @@ export type User = {
 
 export type RegisterInput = {
   fullName: string;
+  username: string;
   email: string;
   password: string;
 };
